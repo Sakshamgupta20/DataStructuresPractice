@@ -17,9 +17,9 @@ public class Main {
         int[] arr2 = {1, 2, 3, 4, 5};
 
         BfsGraphProblems problems = new BfsGraphProblems();
-        int[][] arr = CommonUtils.stringTo2DArray("[[0,0,0],[1,1,0],[0,0,0],[0,1,1],[0,0,0]]");
+        int[][] arr = CommonUtils.stringTo2DArray("[[-1,-1,30,14,15,-1],[23,9,-1,-1,-1,9],[12,5,7,24,-1,30],[10,-1,-1,-1,25,17],[32,-1,28,-1,-1,32],[-1,-1,23,-1,13,19]]");
 
         TreeNode node = new TreeNode(Arrays.asList(3, 5, 1, 6, 2, 0, 8, null, null, 7, 4));
-        System.out.println(problems.shortestPath(arr,1));
+        System.out.println(problems.snakesAndLadders(arr));
     }
 }

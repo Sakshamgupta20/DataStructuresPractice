@@ -257,4 +257,116 @@ public class BfsGraphProblems {
             colorGraph.get(edge[0]).add(edge[1]);
         }
     }
+
+    /**
+     * 1926. Nearest Exit from Entrance in Maze
+     * You are given an m x n matrix maze (0-indexed) with empty cells (represented as '.') and walls (represented as '+'). You are also given the entrance of the maze, where entrance = [entrancerow, entrancecol] denotes the row and column of the cell you are initially standing at.
+     * <p>
+     * In one step, you can move one cell up, down, left, or right. You cannot step into a cell with a wall, and you cannot step outside the maze. Your goal is to find the nearest exit from the entrance. An exit is defined as an empty cell that is at the border of the maze. The entrance does not count as an exit.
+     * <p>
+     * Return the number of steps in the shortest path from the entrance to the nearest exit, or -1 if no such path exists.
+     */
+    public int nearestExit(char[][] maze, int[] entrance) {
+        int n = maze.length;
+        int m = maze[0].length;
+        boolean[][] seen = new boolean[n][m];
+
+        Queue<Step> queue = new LinkedList<>();
+        queue.add(new Step(entrance[0], entrance[1], 0));
+        seen[entrance[0]][entrance[1]] = true;
+        int[][] directions = CommonUtils.getVerticalHorizontalDirections();
+
+        while (!queue.isEmpty()) {
+            Step node = queue.remove();
+            int row = node.row;
+            int column = node.column;
+            int steps = node.steps;
+
+            if ((row == n - 1 || column == m - 1 || column == 0 || row == 0) && !(row == entrance[0] && column == entrance[1]))
+                return steps;
+
+            for (int[] direction : directions) {
+                int newRow = row + direction[0];
+                int newColumn = column + direction[1];
+
+                if (CommonUtils.validGrid(n, m, newRow, newColumn) && maze[newRow][newColumn] != '+' && !seen[newRow][newColumn]) {
+                    queue.add(new Step(newRow, newColumn, steps + 1));
+                    seen[newRow][newColumn] = true;
+                }
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * 909. Snakes and Ladders
+     * You are given an n x n integer matrix board where the cells are labeled from 1 to n2 in a Boustrophedon style starting from the bottom left of the board (i.e. board[n - 1][0]) and alternating direction each row.
+     * <p>
+     * You start on square 1 of the board. In each move, starting from square curr, do the following:
+     * <p>
+     * Choose a destination square next with a label in the range [curr + 1, min(curr + 6, n2)].
+     * This choice simulates the result of a standard 6-sided die roll: i.e., there are always at most 6 destinations, regardless of the size of the board.
+     * If next has a snake or ladder, you must move to the destination of that snake or ladder. Otherwise, you move to next.
+     * The game ends when you reach the square n2.
+     * A board square on row r and column c has a snake or ladder if board[r][c] != -1. The destination of that snake or ladder is board[r][c]. Squares 1 and n2 do not have a snake or ladder.
+     * <p>
+     * Note that you only take a snake or ladder at most once per move. If the destination to a snake or ladder is the start of another snake or ladder, you do not follow the subsequent snake or ladder.
+     * <p>
+     * For example, suppose the board is [[-1,4],[-1,3]], and on the first move, your destination square is 2. You follow the ladder to square 3, but do not follow the subsequent ladder to 4.
+     * Return the least number of moves required to reach the square n2. If it is not possible to reach the square, return -1.
+     */
+    public int snakesAndLadders(int[][] board) {
+        int n = board.length;
+        int ans = (int) Math.pow(n, 2);
+        boolean[][] seen = new boolean[n][n];
+
+        Queue<StepDice> queue = new LinkedList<>();
+        queue.add(new StepDice(0, 1));
+
+
+        while (!queue.isEmpty()) {
+            StepDice node = queue.remove();
+            int count = node.count;
+            int steps = node.steps;
+
+            for (int i = 1; i <= 6; i++) {
+                int newCount = count + i;
+                newCount = Math.min(newCount, ans);
+
+                int newRow = getRowValue(n, newCount);
+                int newColumn = getColumnValue(n, newCount);
+
+                if (board[newRow][newColumn] != -1) {
+                    newCount = board[newRow][newColumn];
+                    newRow = getRowValue(n, newCount);
+                    newColumn = getColumnValue(n, newCount);
+                }
+
+                if (!seen[newRow][newColumn]) {
+                    if (newCount == ans)
+                        return steps + 1;
+
+                    seen[newRow][newColumn] = true;
+                    queue.add(new StepDice(steps + 1, newCount));
+                }
+            }
+        }
+        return -1;
+    }
+
+    public int getRowValue(int n, int i) {
+        return (int) (n - Math.ceil((float) i / n));
+    }
+
+    public int getColumnValue(int n, int i) {
+        int row = (int) (n - Math.ceil((float) i / n));
+        boolean evenRow = (n - row - 1) % 2 == 0;
+        int columnValue = i % n;
+        int column;
+        if (evenRow)
+            column = columnValue != 0 ? columnValue - 1 : n - 1;
+        else
+            column = columnValue != 0 ? n - columnValue : columnValue;
+        return column;
+    }
 }
