@@ -1,4 +1,6 @@
-import java.util.List;
+import common.CommonUtils;
+
+import java.util.*;
 
 public class ArrayEasyProblems {
     public int largestElementInArray(List<Integer> numbers) {
@@ -141,4 +143,214 @@ public class ArrayEasyProblems {
         }
         return prefix;
     }
+
+    public int[] twoSum(int[] nums, int target) {
+        HashMap<Integer, Integer> hashMap = new HashMap<>();
+        for (int i = 0; i < nums.length; i++) {
+            int min = target - nums[i];
+            if (hashMap.containsKey(nums[i]))
+                return new int[]{hashMap.get(nums[i]), i};
+            hashMap.put(min, i);
+        }
+        return null;
+    }
+
+    public List<List<String>> groupAnagrams(String[] strs) {
+        if (strs.length == 0) return new ArrayList<>();
+        Map<String, List> ans = new HashMap<String, List>();
+        for (String s : strs) {
+            char[] ca = s.toCharArray();
+            Arrays.sort(ca);
+            String key = String.valueOf(ca);
+            if (!ans.containsKey(key)) ans.put(key, new ArrayList());
+            ans.get(key).add(s);
+        }
+        return new ArrayList(ans.values());
+    }
+
+    public int[] productExceptSelf(int[] nums) {
+        int sum = 1;
+        int zeroCount = 0;
+        int[] muls = new int[nums.length];
+        for (int num : nums) {
+            if (num == 0)
+                zeroCount++;
+            else {
+                sum = sum * num;
+            }
+        }
+        for (int i = 0; i < nums.length; i++) {
+            int s;
+            if (zeroCount > 1) {
+                s = 0;
+            } else {
+                if (zeroCount == 1) {
+                    if (nums[i] == 0) {
+                        s = sum;
+                    } else
+                        s = 0;
+                } else
+                    s = sum / nums[i];
+
+            }
+            muls[i] = s;
+        }
+        return muls;
+    }
+
+    public boolean isValidSudoku(char[][] board) {
+        int rowsL = board.length;
+        int columnsL = board[0].length;
+        HashMap<Integer, Set<Character>> columns = new HashMap<>();
+        HashMap<Integer, Set<Character>> rows = new HashMap<>();
+        HashMap<Integer, Set<Character>> groups = new HashMap<>();
+        for (int row = 0; row < rowsL; row++) {
+            for (int column = 0; column < columnsL; column++) {
+                rows.putIfAbsent(row, new HashSet<>());
+                columns.putIfAbsent(column, new HashSet<>());
+                char value = board[row][column];
+                int group = row / 3 + (column / 3 * 3);
+                groups.putIfAbsent(group, new HashSet<>());
+                if (value != '.') {
+                    if (rows.get(row).contains(value))
+                        return false;
+                    if (columns.get(column).contains(value))
+                        return false;
+                    if (groups.get(group).contains(value))
+                        return false;
+                    rows.get(row).add(value);
+                    columns.get(column).add(value);
+                    groups.get(group).add(value);
+                }
+
+            }
+        }
+        return true;
+    }
+
+    public int longestConsecutive(int[] nums) {
+        if (nums.length == 0)
+            return 0;
+        Arrays.sort(nums);
+        int max = 1;
+        int currentStreak = 1;
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i] != nums[i - 1]) {
+                if (nums[i] - nums[i - 1] == 1) {
+                    currentStreak += 1;
+                } else {
+                    max = Math.max(max, currentStreak);
+                    currentStreak = 1;
+                }
+            }
+        }
+        return Math.max(max, currentStreak);
+    }
+
+    public int[] twoSumSorted(int[] numbers, int target) {
+        int low = 0;
+        int high = numbers.length - 1;
+        while (low < high) {
+            int sum = numbers[low] + numbers[high];
+
+            if (sum == target) {
+                return new int[]{low + 1, high + 1};
+            } else if (sum < target) {
+                ++low;
+            } else {
+                --high;
+            }
+        }
+        // In case there is no solution, return {-1, -1}.
+        return new int[]{-1, -1};
+    }
+
+    /**
+     * Largest Number At Least Twice of Others
+     * You are given an integer array nums where the largest integer is unique.
+     * <p>
+     * Determine whether the largest element in the array is at least twice as much as every other number in the array. If it is, return the index of the largest element, or return -1 otherwise.
+     */
+    public int dominantIndex(int[] nums) {
+        int largest = 0;
+        int secondLargest = -1;
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] >= nums[largest]) {
+                largest = i;
+            }
+        }
+
+        for (int i = 0; i < nums.length; i++) {
+            if ((secondLargest == -1 || nums[i] >= nums[secondLargest]) && nums[i] != nums[largest]) {
+                secondLargest = i;
+            }
+        }
+        if (nums[largest] / 2 >= nums[secondLargest])
+            return largest;
+        return -1;
+    }
+
+    public int[] plusOne(int[] digits) {
+        int carry = 1;
+        for (int i = digits.length - 1; i >= 0; i--) {
+            int digit = digits[i];
+            int sum = digit + carry;
+            if (sum > 9) {
+                digits[i] = 0;
+            } else {
+                digits[i] = sum;
+                carry = 0;
+                break;
+            }
+        }
+        if (carry == 1) {
+            int[] ans = new int[digits.length + 1];
+            ans[0] = 1;
+            return ans;
+        }
+        return digits;
+    }
+
+    /**
+     * 498. Diagonal Traverse
+     * Given an m x n matrix mat, return an array of all the elements of the array in a diagonal order.
+     */
+    public int[] findDiagonalOrder(int[][] mat) {
+        boolean up = true;
+
+        int n = mat.length;
+        int m = mat[0].length;
+
+        int total = n * m;
+        int[] ans = new int[total];
+
+        int row = 0;
+        int column = 0;
+        int index = 0;
+        while (row < n && column < m) {
+
+            ans[index++] = mat[row][column];
+            int newRow = row + (up ? -1 : 1);
+            int newColumn = column + (up ? 1 : -1);
+
+            if (!CommonUtils.validGrid(n, m, newRow, newColumn)) {
+                if (up) {
+                    row += (column == m - 1 ? 1 : 0);
+                    column += (column < m - 1 ? 1 : 0);
+                } else {
+                    column += (row == n - 1 ? 1 : 0);
+                    row += (row < n - 1 ? 1 : 0);
+                }
+                up = !up;
+            } else {
+                row = newRow;
+                column = newColumn;
+            }
+
+        }
+        return ans;
+
+    }
+
+
 }

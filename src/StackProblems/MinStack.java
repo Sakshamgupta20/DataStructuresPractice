@@ -2,7 +2,7 @@ package StackProblems;
 
 import java.util.Stack;
 
-class MinStack {
+public class MinStack {
     private Stack<Integer> stack = new Stack<>();
     private Stack<int[]> minStack = new Stack<>();
 

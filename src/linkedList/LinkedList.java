@@ -65,6 +65,29 @@ public class LinkedList {
         return dummy;
     }
 
+    public ListNode swapPairsRecursive(ListNode head) {
+        if (head == null || head.next == null)
+            return head;
+
+        ListNode firstNode = head;
+        ListNode secondNode = head.next;
+
+        firstNode.next = swapPairsRecursive(secondNode.next);
+        secondNode.next = firstNode;
+
+        return secondNode;
+    }
+
+    public ListNode reverseListRecursion(ListNode head) {
+        if (head == null || head.next == null)
+            return head;
+
+        ListNode p = reverseListRecursion(head.next);
+        head.next.next = head;
+        head.next = null;
+        return p;
+    }
+
     public int pairSum(ListNode head) {
         ListNode fast = head;
         ListNode slow = head;
@@ -280,7 +303,7 @@ public class LinkedList {
     }
 
     public ListNode oddEvenList(ListNode head) {
-        if(head == null)
+        if (head == null)
             return null;
         ListNode odd = head;
         ListNode even = head.next;

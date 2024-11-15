@@ -369,4 +369,155 @@ public class BfsGraphProblems {
             column = columnValue != 0 ? n - columnValue : columnValue;
         return column;
     }
+
+    /**
+     * 1059. All Paths from Source Lead to Destination
+     * Given the edges of a directed graph where edges[i] = [ai, bi] indicates there is an edge between nodes ai and bi, and two nodes source and destination of this graph, determine whether or not all paths starting from source eventually, end at destination, that is:
+     * <p>
+     * At least one path exists from the source node to the destination node
+     * If a path exists from the source node to a node with no outgoing edges, then that node is equal to destination.
+     * The number of possible paths from source to destination is a finite number.
+     * Return true if and only if all roads from source lead to destination.
+     */
+    public List<List<Integer>> allPathsSourceTarget(int[][] graph) {
+        List<List<Integer>> answers = new ArrayList<>();
+
+        Queue<List<Integer>> queue = new LinkedList<>();
+        queue.add(List.of(0));
+        while (!queue.isEmpty()) {
+            List<Integer> curr = queue.poll();
+            int node = curr.get(curr.size() - 1);
+
+            for (int nextNode : graph[node]) {
+                List<Integer> tmpPath = new ArrayList<>(curr);
+                tmpPath.add(nextNode);
+                if (nextNode == graph.length - 1) {
+                    answers.add(new ArrayList<>(tmpPath));
+                } else {
+                    queue.add(new ArrayList<>(tmpPath));
+                }
+            }
+        }
+        return answers;
+    }
+
+    /**
+     * 116. Populating Next Right Pointers in Each Node
+     * You are given a perfect binary tree where all leaves are on the same level, and every parent has two children. The binary tree has the following definition:
+     * <p>
+     * struct Node {
+     * int val;
+     * Node *left;
+     * Node *right;
+     * Node *next;
+     * }
+     * Populate each next pointer to point to its next right node. If there is no next right node, the next pointer should be set to NULL.
+     * <p>
+     * Initially, all next pointers are set to NULL.
+     */
+    public Node connect(Node root) {
+        if (root == null)
+            return null;
+
+        Queue<Node> queue = new LinkedList<>();
+        queue.add(root);
+
+        while (!queue.isEmpty()) {
+            int count = queue.size();
+            Node prev = null;
+            for (int i = 0; i < count; i++) {
+                Node next = queue.poll();
+                if (Objects.nonNull(prev))
+                    prev.next = next;
+                prev = next;
+
+                if (next.left != null)
+                    queue.add(next.left);
+                if (next.right != null)
+                    queue.add(next.right);
+            }
+        }
+        return root;
+    }
+
+    /**
+     * 429. N-ary Tree Level Order Traversal
+     * Medium
+     * Topics
+     * Companies
+     * Given an n-ary tree, return the level order traversal of its nodes' values.
+     * <p>
+     * Nary-Tree input serialization is represented in their level order traversal, each group of children is separated by the null value (See examples).
+     *
+     * @param root
+     * @return
+     */
+    public List<List<Integer>> levelOrder(Node2 root) {
+        if (root == null)
+            return Collections.emptyList();
+
+        Queue<Node2> queue = new LinkedList<>();
+        queue.add(root);
+
+        List<List<Integer>> res = new ArrayList<>();
+        while (!queue.isEmpty()) {
+            int count = queue.size();
+            List<Integer> curL = new ArrayList<>();
+            for (int i = 0; i < count; i++) {
+                Node2 curr = queue.poll();
+                List<Node2> children = curr.children;
+                curL.add(curr.val);
+                queue.addAll(children);
+            }
+            res.add(curL);
+        }
+        return res;
+    }
+
+    /**
+     * 286. Walls and Gates
+     * You are given an m x n grid rooms initialized with these three possible values.
+     * <p>
+     * -1 A wall or an obstacle.
+     * 0 A gate.
+     * INF Infinity means an empty room. We use the value 231 - 1 = 2147483647 to represent INF as you may assume that the distance to a gate is less than 2147483647.
+     * Fill each empty room with the distance to its nearest gate. If it is impossible to reach a gate, it should be filled with INF.
+     */
+    public void wallsAndGates(int[][] rooms) {
+        int n = rooms.length;
+        int m = rooms[0].length;
+
+        Queue<Step> queue = new LinkedList<>();
+
+        boolean[][] seen = new boolean[n][m];
+        for (int row = 0; row < n; row++) {
+            for (int column = 0; column < m; column++) {
+                if (rooms[row][column] == 0) {
+                    seen[row][column] = true;
+                    queue.add(new Step(row, column, 0));
+                }
+            }
+        }
+        int[][] directions = CommonUtils.getVerticalHorizontalDirections();
+
+        while (!queue.isEmpty()) {
+            Step step = queue.poll();
+            int row = step.row;
+            int column = step.column;
+            int steps = step.steps;
+
+            rooms[row][column] = Math.min(steps, rooms[row][column]);
+
+            for (int[] direction : directions) {
+                int newRow = row + direction[0];
+                int newColumn = column + direction[1];
+
+                if (CommonUtils.validGrid(n, m, newRow, newColumn) && !seen[newRow][newColumn] && rooms[newRow][newColumn] != -1) {
+                    queue.add(new Step(newRow, newColumn, steps + 1));
+                    seen[newRow][newColumn] = true;
+                }
+            }
+
+        }
+    }
 }

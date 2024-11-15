@@ -2,6 +2,8 @@ package Trees;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.PriorityQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class BinarySearchTree {
@@ -97,10 +99,111 @@ public class BinarySearchTree {
         else
             closestValue(root.right, target, answer);
 
-        if(Math.abs(root.val - target) < Math.abs(answer.get() - target))
+        if (Math.abs(root.val - target) < Math.abs(answer.get() - target))
             answer.set(root.val);
-        else if(Math.abs(root.val - target) == Math.abs(answer.get() - target))
-            answer.set(Math.min(root.val,answer.get()));
+        else if (Math.abs(root.val - target) == Math.abs(answer.get() - target))
+            answer.set(Math.min(root.val, answer.get()));
+    }
+
+    /**
+     * 700. Search in a Binary Search Tree
+     * You are given the root of a binary search tree (BST) and an integer val.
+     * <p>
+     * Find the node in the BST that the node's value equals val and return the subtree rooted with that node. If such a node does not exist, return null.
+     */
+    public TreeNode searchBST(TreeNode root, int val) {
+        if (root == null)
+            return null;
+
+        if (root.val == val)
+            return root;
+
+        if (val > root.val)
+            return searchBST(root.right, val);
+        else
+            return searchBST(root.left, val);
+    }
+
+    public List<Integer> getAllElements(TreeNode root1, TreeNode root2) {
+        List<Integer> sorted1 = new ArrayList<>();
+        getAllElements(root1, sorted1);
+
+        List<Integer> sorted2 = new ArrayList<>();
+        getAllElements(root2, sorted2);
+
+        List<Integer> combined = new ArrayList<>();
+        int i = 0;
+        int j = 0;
+
+        while (i < sorted1.size() && j < sorted2.size()) {
+            if (sorted1.get(i) < sorted2.get(j)) {
+                combined.add(sorted1.get(i++));
+            } else
+                combined.add(sorted2.get(j++));
+        }
+
+        while (i < sorted1.size())
+            combined.add(sorted1.get(i++));
+
+        while (j < sorted2.size())
+            combined.add(sorted2.get(j++));
+
+        return combined;
+
+
+    }
+
+    public void getAllElements(TreeNode node, List<Integer> sorted) {
+        if (node == null)
+            return;
+        getAllElements(node.left, sorted);
+        sorted.add(node.val);
+        getAllElements(node.right, sorted);
+    }
+
+
+    /**
+     * 235. Lowest Common Ancestor of a Binary Search Tree
+     * Given a binary search tree (BST), find the lowest common ancestor (LCA) node of two given nodes in the BST.
+     * <p>
+     * According to the definition of LCA on Wikipedia: “The lowest common ancestor is defined between two nodes p and q as the lowest node in T that has both p and q as descendants (where we allow a node to be a descendant of itself).”
+     */
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        if (root == null)
+            return null;
+
+        if (p.val > root.val && q.val > root.val)
+            return lowestCommonAncestor(root.right, p, q);
+        else if (p.val < root.val && q.val < root.val)
+            return lowestCommonAncestor(root.left, p, q);
+        else
+            return root;
+    }
+
+    /**
+     * 450. Delete Node in a BST
+     * Given a root node reference of a BST and a key, delete the node with the given key in the BST. Return the root node reference (possibly updated) of the BST.
+     * <p>
+     * Basically, the deletion can be divided into two stages:
+     * <p>
+     * Search for a node to remove.
+     * If the node is found, delete the node.
+     */
+    public TreeNode deleteNode(TreeNode root, int key) {
+        return root;
+    }
+
+    public ArrayList<Integer> inorder(TreeNode root, ArrayList<Integer> arr) {
+        if (root == null) return arr;
+        inorder(root.left, arr);
+        arr.add(root.val);
+        inorder(root.right, arr);
+        return arr;
+    }
+
+    public int kthSmallest(TreeNode root, int k) {
+        ArrayList<Integer> nums = inorder(root, new ArrayList<Integer>());
+        return nums.get(k - 1);
     }
 
 }

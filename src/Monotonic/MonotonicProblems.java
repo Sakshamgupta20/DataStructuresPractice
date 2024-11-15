@@ -200,4 +200,65 @@ public class MonotonicProblems {
         }
         return chargeTimes.length - left;
     }
+
+    public int carFleet(int target, int[] position, int[] speed) {
+        Stack<Double> stack = new Stack<>();
+        int[][] cars = new int[position.length][2];
+        for (int i = 0; i < position.length; i++) {
+            cars[i] = new int[]{position[i], speed[i]};
+        }
+        Arrays.sort(cars, Comparator.comparingInt(a -> a[0]));
+        for (int i = cars.length - 1; i >= 0; i--) {
+            double time = (double) (target - cars[i][0]) / cars[i][1];
+            while (!stack.isEmpty() && time <= stack.peek())
+                stack.pop();
+            stack.push(time);
+        }
+        return stack.size();
+    }
+
+    public int largestRectangleArea(int[] heights) {
+        int max = 0;
+        Stack<Integer> stack = new Stack<>();
+        stack.add(-1);
+        int n = heights.length;
+        for (int i = 0; i < heights.length; i++) {
+            while (stack.peek() != -1 && heights[stack.peek()] > heights[i]) {
+                int ind = stack.pop();
+                max = Math.max(max, heights[ind] * (i - stack.peek() - 1));
+            }
+            stack.push(i);
+        }
+        while (stack.peek() != -1) {
+            int ind = stack.pop();
+            max = Math.max(max, heights[ind] * (n - stack.peek() - 1));
+        }
+        return max;
+
+    }
+
+    /**
+     * 1574. Shortest Subarray to be Removed to Make Array Sorted
+     * Given an integer array arr, remove a subarray (can be empty) from arr such that the remaining elements in arr are non-decreasing.
+     * <p>
+     * Return the length of the shortest subarray to remove.
+     * <p>
+     * A subarray is a contiguous subsequence of the array.
+     */
+    public int findLengthOfShortestSubarray(int[] arr) {
+        int right = arr.length - 1;
+        while (right > 0 && arr[right] >= arr[right - 1]) {
+            right--;
+        }
+
+        int ans = right;
+        int left = 0;
+        while (left < right && (left == 0 || arr[left - 1] <= arr[left])) {
+            while (right < arr.length && arr[right] < arr[left])
+                right++;
+            ans = Math.min(ans, right - left - 1);
+            left++;
+        }
+        return ans;
+    }
 }

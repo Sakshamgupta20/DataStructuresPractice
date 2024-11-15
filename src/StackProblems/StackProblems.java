@@ -1,9 +1,8 @@
 package StackProblems;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Stack;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.function.BiFunction;
 
 public class StackProblems {
     public boolean isValid(String s) {
@@ -99,11 +98,10 @@ public class StackProblems {
 
             while (!stack.isEmpty() && (stack.peek() > 0 && asteroid < 0)) {
 
-                if(Math.abs(stack.peek()) <  Math.abs(asteroid)) {
+                if (Math.abs(stack.peek()) < Math.abs(asteroid)) {
                     stack.pop();
                     continue;
-                }
-                else if(Math.abs(stack.peek()) ==  Math.abs(asteroid)) {
+                } else if (Math.abs(stack.peek()) == Math.abs(asteroid)) {
                     stack.pop();
                 }
                 flag = false;
@@ -123,5 +121,26 @@ public class StackProblems {
         }
 
         return remainingAsteroids;
+    }
+
+    public int evalRPN(String[] tokens) {
+        final Map<String, BiFunction<Integer, Integer, Integer>> OPERATIONS = new HashMap<>();
+        OPERATIONS.put("+", (a, b) -> a + b);
+        OPERATIONS.put("-", (a, b) -> a - b);
+        OPERATIONS.put("*", (a, b) -> a * b);
+        OPERATIONS.put("/", (a, b) -> a / b);
+
+        Stack<Integer> stack = new Stack<>();
+        for (String token : tokens) {
+            if (!OPERATIONS.containsKey(token)) {
+                stack.push(Integer.valueOf(token));
+                continue;
+            }
+            int one = stack.pop();
+            int two = stack.pop();
+            int result = OPERATIONS.get(token).apply(two, one);
+            stack.push(result);
+        }
+        return stack.pop();
     }
 }

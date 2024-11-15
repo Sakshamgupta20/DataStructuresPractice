@@ -1,4 +1,5 @@
-import java.util.Arrays;
+import java.lang.reflect.Array;
+import java.util.*;
 
 public class TwoPointer {
     public String reverseWords(String s) {
@@ -75,11 +76,60 @@ public class TwoPointer {
         }
         if (index == -1)
             return word;
-        for (int i = 0; i <= index /2; i++) {
+        for (int i = 0; i <= index / 2; i++) {
             swap(arr, i, index - i);
         }
         return new String(arr);
     }
+
+    public int trap(int[] height) {
+        int maxLeft = 0;
+        int maxRight = 0;
+        int left = 0, right = height.length - 1;
+        int ans = 0;
+        while (left < right) {
+            if (height[left] < height[right]) {
+                maxLeft = Math.max(maxRight, height[left]);
+                ans += maxLeft - height[left];
+                ++left;
+            } else {
+                maxRight = Math.max(maxRight, height[right]);
+                ans += maxRight - height[right];
+                --right;
+            }
+        }
+        return ans;
+    }
+
+    public List<List<Integer>> threeSum(int[] nums) {
+        int n = nums.length;
+        Arrays.sort(nums);
+        List<List<Integer>> ans = new ArrayList<>();
+        for (int i = 0; i < n && nums[i] <= 0; i++) {
+            if (i==0 || nums[i]!=nums[i-1]) {
+                int start = i+1, end  = n-1;
+                int target = -nums[i];
+                while (start < end) {
+                    int sum = nums[start] + nums[end];
+                    if (sum < target) {
+                        start++;
+                    } else if (sum > target) {
+                        end--;
+                    } else {
+                        ans.add(Arrays.asList(nums[i], nums[start], nums[end]));
+                        start++;
+                        end--;
+                        while(start < end && nums[start] == nums[start-1]) {
+                            start++;
+                        }
+                    }
+                }
+            }
+        }
+        return ans;
+    }
+
+
 
     private void swap(char[] arr, int i, int j) {
         char temp = arr[i];
