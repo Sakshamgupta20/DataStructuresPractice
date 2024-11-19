@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -89,6 +90,49 @@ public class SlidingWindow {
                 max = Math.max(max, all.size());
             }
 
+        }
+        return max;
+    }
+
+    /**
+     * 2461. Maximum Sum of Distinct Subarrays With Length K
+     * You are given an integer array nums and an integer k. Find the maximum subarray sum of all the subarrays of nums that meet the following conditions:
+     * <p>
+     * The length of the subarray is k, and
+     * All the elements of the subarray are distinct.
+     * Return the maximum subarray sum of all the subarrays that meet the conditions. If no subarray meets the conditions, return 0.
+     * <p>
+     * A subarray is a contiguous non-empty sequence of elements within an array.
+     */
+    public long maximumSubarraySum(int[] nums, int k) {
+        int left = 0;
+        long currSum = 0;
+        long max = 0;
+
+        int maxNum = 0;
+        for(int num:nums){
+            maxNum = Math.max(maxNum,num);
+        }
+        int[] counts = new int[maxNum+1];
+        Arrays.fill(counts,-1);
+
+        for (int right = 0; right < nums.length; right++) {
+            int num = nums[right];
+
+            if (counts[num] != -1) {
+                int last = counts[num];
+                while (left <= last) {
+                    currSum -= nums[left++];
+                }
+            }
+            currSum += num;
+            counts[num] = right;
+
+            if (right - left == k - 1) {
+                max = Math.max(currSum, max);
+                currSum -= nums[left];
+                counts[nums[left++]] = -1;
+            }
         }
         return max;
     }

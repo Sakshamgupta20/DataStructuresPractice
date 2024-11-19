@@ -30,7 +30,7 @@ public class Main {
     public static void main(String[] args) {
 
         //Integers
-        int[] arrInt1 = {2,4,9,3};
+        int[] arrInt1 = {1,5,4,2,9,9,9};
         int[] arrInt2 = {1,2,5,7,9};
         int[] arrInt3 = {1,3,4,5,8};
         List<List<Integer>> arr2DIntList = List.of(List.of(0, 3), List.of(1, 2), List.of(0, 2));
@@ -51,9 +51,9 @@ public class Main {
 
 
         //Problems
-        PrefixSum problems = new PrefixSum();
+        SlidingWindow problems = new SlidingWindow();
 
-        System.out.println(Arrays.toString(problems.decrypt(arrInt1, -2)));
+        System.out.println(problems.maximumSubarraySum(arrInt1, 3));
 
 
     }
