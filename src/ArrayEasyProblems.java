@@ -352,5 +352,31 @@ public class ArrayEasyProblems {
 
     }
 
+    /**
+     * 1213. Intersection of Three Sorted Arrays
+     * Given three integer arrays arr1, arr2 and arr3 sorted in strictly increasing order, return a sorted array of only the integers that appeared in all three arrays.
+     */
+    public List<Integer> arraysIntersection(int[] arr1, int[] arr2, int[] arr3) {
+        int[] res = new int[2000 + 1];
+        for (int i : arr1) {
+            if(res[i] == 0)
+                res[i]++;
+        }
+        for (int i : arr2) {
+            if(res[i] == 1)
+                res[i]++;
+        }
+
+        List<Integer> ans = new ArrayList<>();
+        for (int i : arr3) {
+            if(res[i] == 2) {
+                ans.add(i);
+                res[i]++;
+            }
+        }
+        return ans;
+
+    }
+
 
 }

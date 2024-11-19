@@ -30,8 +30,9 @@ public class Main {
     public static void main(String[] args) {
 
         //Integers
-        int[] arrInt1 = {1,2,3,3,10,1,3,3,5};
-        int[] arrInt2 = {3,4,5,1,2};
+        int[] arrInt1 = {2,4,9,3};
+        int[] arrInt2 = {1,2,5,7,9};
+        int[] arrInt3 = {1,3,4,5,8};
         List<List<Integer>> arr2DIntList = List.of(List.of(0, 3), List.of(1, 2), List.of(0, 2));
         int[][] arrInt2D1 = CommonUtils.stringTo2DArray("[[1,2],[3,2],[2,4],[5,6],[3,5]]");
 
@@ -50,9 +51,9 @@ public class Main {
 
 
         //Problems
-        MonotonicProblems problems = new MonotonicProblems();
+        PrefixSum problems = new PrefixSum();
 
-        System.out.println(problems.findLengthOfShortestSubarray(arrInt1));
+        System.out.println(Arrays.toString(problems.decrypt(arrInt1, -2)));
 
 
     }

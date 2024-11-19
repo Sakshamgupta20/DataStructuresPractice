@@ -261,4 +261,40 @@ public class MonotonicProblems {
         }
         return ans;
     }
+
+    /**
+     * 3254. Find the Power of K-Size Subarrays I
+     * You are given an array of integers nums of length n and a positive integer k.
+     * <p>
+     * The power of an array is defined as:
+     * <p>
+     * Its maximum element if all of its elements are consecutive and sorted in ascending order.
+     * -1 otherwise.
+     * You need to find the power of all
+     * subarrays
+     * of nums of size k.
+     * <p>
+     * Return an integer array results of size n - k + 1, where results[i] is the power of nums[i..(i + k - 1)].
+     */
+    public int[] resultsArray(int[] nums, int k) {
+        int[] ans = new int[nums.length - k + 1];
+        int index = 0;
+        Deque<Integer> deque = new LinkedList<>();
+        for (int i = 0; i < nums.length; i++) {
+            if (!deque.isEmpty() && i - deque.getFirst() >= k)
+                deque.removeFirst();
+
+            if(!deque.isEmpty() && nums[deque.getLast()] + 1 != nums[i])
+                deque.clear();
+
+            deque.add(i);
+
+
+            if (i >= k - 1) {
+                ans[index++] = deque.size() == k ? nums[deque.getLast()] : -1;
+            }
+
+        }
+        return ans;
+    }
 }

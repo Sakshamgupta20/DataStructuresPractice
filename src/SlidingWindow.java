@@ -1,3 +1,4 @@
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -48,8 +49,8 @@ public class SlidingWindow {
         int[] absArr = new int[s.length()];
         int n = Math.min(s.length(), t.length());
 
-        for(int i=0;i<s.length();i++){
-            absArr[i] = Math.abs((int)s.charAt(i) - (int) t.charAt(i));
+        for (int i = 0; i < s.length(); i++) {
+            absArr[i] = Math.abs((int) s.charAt(i) - (int) t.charAt(i));
         }
         for (int right = 0; right < n; right++) {
             curr += absArr[right];
@@ -58,6 +59,36 @@ public class SlidingWindow {
                 left++;
             }
             max = Math.max(max, right - left + 1);
+        }
+        return max;
+    }
+
+    public int shareCandies(int[] candies, int k) {
+        if (k == 0) return candies.length;
+
+        int left = 0;
+        HashMap<Integer, Integer> all = new HashMap<>();
+        for (int candy : candies) {
+            all.put(candy, all.getOrDefault(candy, 0) + 1);
+        }
+
+        int max = 0;
+        for (int right = 0; right < candies.length; right++) {
+            all.put(candies[right], all.get(candies[right]) - 1);
+            if (all.get(candies[right]) == 0) {
+                all.remove(candies[right]);
+            }
+
+            if (right - left + 1 > k) {
+                all.put(candies[left], all.getOrDefault(candies[left], 0) + 1);
+                left++;
+            }
+
+            // If the window size is k, calculate max.
+            if (right - left + 1 == k) {
+                max = Math.max(max, all.size());
+            }
+
         }
         return max;
     }
