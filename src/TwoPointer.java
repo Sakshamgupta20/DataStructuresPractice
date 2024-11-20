@@ -106,8 +106,8 @@ public class TwoPointer {
         Arrays.sort(nums);
         List<List<Integer>> ans = new ArrayList<>();
         for (int i = 0; i < n && nums[i] <= 0; i++) {
-            if (i==0 || nums[i]!=nums[i-1]) {
-                int start = i+1, end  = n-1;
+            if (i == 0 || nums[i] != nums[i - 1]) {
+                int start = i + 1, end = n - 1;
                 int target = -nums[i];
                 while (start < end) {
                     int sum = nums[start] + nums[end];
@@ -119,7 +119,7 @@ public class TwoPointer {
                         ans.add(Arrays.asList(nums[i], nums[start], nums[end]));
                         start++;
                         end--;
-                        while(start < end && nums[start] == nums[start-1]) {
+                        while (start < end && nums[start] == nums[start - 1]) {
                             start++;
                         }
                     }

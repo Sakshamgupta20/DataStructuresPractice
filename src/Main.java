@@ -14,6 +14,7 @@ import Heap.Twitter;
 import Monotonic.MonotonicProblems;
 import QueueProblems.QueueProblems;
 import StringProblems.Codec;
+import StringProblems.StringProblems;
 import Trees.TreeNode;
 import Trees.TreeProblems;
 import Trie.TrieProblems;
@@ -51,9 +52,9 @@ public class Main {
 
 
         //Problems
-        SlidingWindow problems = new SlidingWindow();
+        TwoPointer problems = new TwoPointer();
 
-        System.out.println(problems.maximumSubarraySum(arrInt1, 3));
+        System.out.println(problems.takeCharacters("aabaaaacaabc",2));
 
 
     }
