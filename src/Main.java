@@ -35,13 +35,14 @@ public class Main {
         int[] arrInt2 = {1,2,5,7,9};
         int[] arrInt3 = {1,3,4,5,8};
         List<List<Integer>> arr2DIntList = List.of(List.of(0, 3), List.of(1, 2), List.of(0, 2));
-        int[][] arrInt2D1 = CommonUtils.stringTo2DArray("[[1,2],[3,2],[2,4],[5,6],[3,5]]");
+        int[][] arrInt2D1 = CommonUtils.stringTo2DArray("[[1,5],[1,1],[1,6],[0,2]]");
+        int[][] arrInt2D2 = CommonUtils.stringTo2DArray("[[0,6],[0,3],[0,5]]");
 
         //String and characters
         String[] strings = new String[]{"wrt","wrf","er","ett","rftt"};
         char[] chars = new char[]{'a', 'b'};
         List<List<String>> arr2DStringList = List.of(List.of("JFK", "AAA"), List.of("JFK", "BBB"), List.of("BBB", "CCC"), List.of("CCC", "JFK"));
-        char[][] arrChar2D = CommonUtils.stringTo2DChar("[['A']]");
+        char[][] arrChar2D = CommonUtils.stringTo2DChar("[['#','.','*','.'],['#','#','*','.']]");
 
         //Tree Nodes
         TreeNode node1 = new TreeNode(Arrays.asList(144, 62, 197, 7, 132, 179, 200, null, 12, 66, 133, null, 192, null, null, null, 42, 63, 102, null, 141, 191, null, 34, 47, null, null, 94, 122, null, null, null, null, 33, null, null, 54, 72, null, 104, 128, 28, null, null, null, null, 87, null, null, null, 129));
@@ -52,9 +53,9 @@ public class Main {
 
 
         //Problems
-        TwoPointer problems = new TwoPointer();
+        Greedy problems = new Greedy();
 
-        System.out.println(problems.takeCharacters("aabaaaacaabc",2));
+        System.out.println(Arrays.deepToString(problems.rotateTheBox(arrChar2D)));
 
 
     }

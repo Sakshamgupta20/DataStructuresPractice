@@ -520,4 +520,57 @@ public class BfsGraphProblems {
 
         }
     }
+
+    /**
+     * 2257. Count Unguarded Cells in the Grid
+     * <p>
+     * You are given two integers m and n representing a 0-indexed m x n grid. You are also given two 2D integer arrays guards and walls where guards[i] = [rowi, coli] and walls[j] = [rowj, colj] represent the positions of the ith guard and jth wall respectively.
+     * <p>
+     * A guard can see every cell in the four cardinal directions (north, east, south, or west) starting from their position unless obstructed by a wall or another guard. A cell is guarded if there is at least one guard that can see it.
+     * <p>
+     * Return the number of unoccupied cells that are not guarded.
+     */
+    public int countUnguarded(int m, int n, int[][] guards, int[][] walls) {
+        int[][] grid = new int[m][n]; // 0 = unvisited, 1 = guarded, 2 = wall/guard
+
+        // Mark walls and guards
+        for (int[] wall : walls) {
+            grid[wall[0]][wall[1]] = 2; // 2 for walls
+        }
+        for (int[] guard : guards) {
+            grid[guard[0]][guard[1]] = 2; // 2 for guards
+        }
+
+        // Directions for vertical and horizontal movement
+        int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+        // Process guards and mark guarded cells
+        for (int[] guard : guards) {
+            for (int[] dir : directions) {
+                int x = guard[0], y = guard[1];
+                while (true) {
+                    x += dir[0];
+                    y += dir[1];
+                    if (x < 0 || x >= m || y < 0 || y >= n || grid[x][y] == 2) {
+                        break; // Stop if out of bounds or hit a guard/wall
+                    }
+                    if (grid[x][y] == 0) {
+                        grid[x][y] = 1; // Mark as guarded
+                    }
+                }
+            }
+        }
+
+        // Count unguarded cells
+        int unguarded = 0;
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] == 0) {
+                    unguarded++;
+                }
+            }
+        }
+
+        return unguarded;
+    }
 }

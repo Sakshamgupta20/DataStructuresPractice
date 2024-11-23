@@ -631,4 +631,41 @@ public class Greedy {
         }
         return false;
     }
+
+    /**
+     * 1861. Rotating the Box
+     * You are given an m x n matrix of characters box representing a side-view of a box. Each cell of the box is one of the following:
+     * <p>
+     * A stone '#'
+     * A stationary obstacle '*'
+     * Empty '.'
+     * The box is rotated 90 degrees clockwise, causing some of the stones to fall due to gravity. Each stone falls down until it lands on an obstacle, another stone, or the bottom of the box. Gravity does not affect the obstacles' positions, and the inertia from the box's rotation does not affect the stones' horizontal positions.
+     * <p>
+     * It is guaranteed that each stone in box rests on an obstacle, another stone, or the bottom of the box.
+     * <p>
+     * Return an n x m matrix representing the box after the rotation described above.
+     */
+    public char[][] rotateTheBox(char[][] box) {
+        int rows = box.length;
+        int cols = box[0].length;
+
+        for (int row = 0; row < box.length; row++) {
+            int emptySpot = cols - 1;
+            for (int col = cols - 1; col >= 0; col--) {
+                if (box[row][col] == '#') {
+                    box[row][col] = '.';
+                    box[row][emptySpot--] = '#';
+                } else if (box[row][col] == '*') {
+                    emptySpot = col - 1;
+                }
+            }
+        }
+        char[][] res = new char[cols][rows];
+        for (int row = 0; row < rows; row++) {
+            for (int column = 0; column < cols; column++) {
+                res[column][row] = box[rows - row - 1][column];
+            }
+        }
+        return res;
+    }
 }
