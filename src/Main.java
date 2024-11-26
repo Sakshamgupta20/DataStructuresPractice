@@ -1,24 +1,5 @@
-import BinarySearch.ArrayReader;
-import BinarySearch.BinarySearchProblems;
-import DynamicProgramming.DynamicProgramming;
-import Graphs.BfsGraphProblems;
-import Graphs.DfsGraphProblems;
-import Graphs.DijkstrasAlgorithm.DijkstrasAlgorithm;
-import Graphs.DisjointSet.DisjointSet;
-import Graphs.DisjointSet.DisjointSetPractice;
-import Graphs.KahnAlgorithm;
-import Heap.HeapProblems;
-import Heap.KthLargest;
-import Heap.MedianFinder;
-import Heap.Twitter;
-import Monotonic.MonotonicProblems;
-import QueueProblems.QueueProblems;
-import StringProblems.Codec;
-import StringProblems.StringProblems;
+import Graphs.ImplicitGraphProblems;
 import Trees.TreeNode;
-import Trees.TreeProblems;
-import Trie.TrieProblems;
-import Trie.WordDictionary;
 import common.CommonUtils;
 import linkedList.ListNode;
 
@@ -35,7 +16,7 @@ public class Main {
         int[] arrInt2 = {1,2,5,7,9};
         int[] arrInt3 = {1,3,4,5,8};
         List<List<Integer>> arr2DIntList = List.of(List.of(0, 3), List.of(1, 2), List.of(0, 2));
-        int[][] arrInt2D1 = CommonUtils.stringTo2DArray("[[1,5],[1,1],[1,6],[0,2]]");
+        int[][] arrInt2D1 = CommonUtils.stringTo2DArray("[[4,1,2],[5,0,3]]");
         int[][] arrInt2D2 = CommonUtils.stringTo2DArray("[[0,6],[0,3],[0,5]]");
 
         //String and characters
@@ -53,9 +34,9 @@ public class Main {
 
 
         //Problems
-        Greedy problems = new Greedy();
+        ImplicitGraphProblems problems = new ImplicitGraphProblems();
 
-        System.out.println(Arrays.deepToString(problems.rotateTheBox(arrChar2D)));
+        System.out.println(problems.slidingPuzzle(arrInt2D1));
 
 
     }

@@ -1,5 +1,6 @@
 package StringProblems;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public class StringProblems {
@@ -142,10 +143,44 @@ public class StringProblems {
         for (int i = 0; i < s.length(); i += 2) {
             char c1 = s.charAt(i);
             char c2 = s.charAt(i + 1);
-            if(c1 != c2)
+            if (c1 != c2)
                 count++;
         }
         return count;
+    }
+
+    /**
+     * 2955. Number of Same-End Substrings
+     * You are given a 0-indexed string s, and a 2D array of integers queries, where queries[i] = [li, ri] indicates a substring of s starting from the index li and ending at the index ri (both inclusive), i.e. s[li..ri].
+     * <p>
+     * Return an array ans where ans[i] is the number of same-end substrings of queries[i].
+     * <p>
+     * A 0-indexed string t of length n is called same-end if it has the same character at both of its ends, i.e., t[0] == t[n - 1].
+     * <p>
+     * A substring is a contiguous non-empty sequence of characters within a string.
+     */
+    public int[] sameEndSubstringCount(String s, int[][] queries) {
+        int[][] counts = new int[s.length() + 1][26];
+        int[] currr = new int[26];
+        for (int i = 0; i < s.length(); i++) {
+            int c = s.charAt(i) - 'a';
+            currr[c]++;
+            counts[i + 1] = Arrays.copyOf(currr, 26);
+        }
+        int[] ans = new int[queries.length];
+        int index = 0;
+        for (int[] query : queries) {
+            int res = 0;
+            int[] c1 = counts[query[0]];
+            int[] c2 = counts[query[1] + 1];
+            for (int i = 0; i < 26; i++) {
+                int count = c2[i] - c1[i];
+                res += count;
+                res += count * (count - 1) / 2;
+            }
+            ans[index++] = res;
+        }
+        return ans;
     }
 
 

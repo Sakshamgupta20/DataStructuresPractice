@@ -2,7 +2,7 @@ import common.CommonUtils;
 
 import java.util.*;
 
-public class ArrayEasyProblems {
+public class ArrayProblems {
     public int largestElementInArray(List<Integer> numbers) {
         int max = numbers.get(0);
         for (int i = 1; i < numbers.size(); i++) {
@@ -359,23 +359,108 @@ public class ArrayEasyProblems {
     public List<Integer> arraysIntersection(int[] arr1, int[] arr2, int[] arr3) {
         int[] res = new int[2000 + 1];
         for (int i : arr1) {
-            if(res[i] == 0)
+            if (res[i] == 0)
                 res[i]++;
         }
         for (int i : arr2) {
-            if(res[i] == 1)
+            if (res[i] == 1)
                 res[i]++;
         }
 
         List<Integer> ans = new ArrayList<>();
         for (int i : arr3) {
-            if(res[i] == 2) {
+            if (res[i] == 2) {
                 ans.add(i);
                 res[i]++;
             }
         }
         return ans;
 
+    }
+
+    /**
+     * 1975. Maximum Matrix Sum
+     * You are given an n x n integer matrix. You can do the following operation any number of times:
+     * <p>
+     * Choose any two adjacent elements of matrix and multiply each of them by -1.
+     * Two elements are considered adjacent if and only if they share a border.
+     * <p>
+     * Your goal is to maximize the summation of the matrix's elements. Return the maximum sum of the matrix's elements using the operation mentioned above.
+     */
+    public long maxMatrixSum(int[][] matrix) {
+        int n = matrix.length; // Number of rows
+        int m = matrix[0].length; // Number of columns
+
+        long sum = 0; // To store the total absolute sum of all elements
+        int negativeCount = 0; // To count the number of negative values
+        int lowest = Integer.MAX_VALUE; // To track the smallest absolute value in the matrix
+
+        for (int[] rows : matrix) {
+            for (int column = 0; column < m; column++) {
+                // Check if the current element is negative
+                if (rows[column] < 0) {
+                    negativeCount++;
+                }
+                // Update the smallest absolute value found so far
+                lowest = Math.min(lowest, Math.abs(rows[column]));
+
+                // Add the absolute value of the current element to the sum
+                sum += Math.abs(rows[column]);
+            }
+        }
+
+        // Check if the count of negatives is odd or even
+        // If even, return the total sum
+        // If odd, subtract 2 * lowest absolute value to balance the sum
+        return negativeCount % 2 == 0 ? sum : (sum - (2L * lowest));
+    }
+
+    /**
+     * 2371. Minimize Maximum Value in a Grid
+     * You are given an m x n integer matrix grid containing distinct positive integers.
+     * <p>
+     * You have to replace each integer in the matrix with a positive integer satisfying the following conditions:
+     * <p>
+     * The relative order of every two elements that are in the same row or column should stay the same after the replacements.
+     * The maximum number in the matrix after the replacements should be as small as possible.
+     * The relative order stays the same if for all pairs of elements in the original matrix such that grid[r1][c1] > grid[r2][c2] where either r1 == r2 or c1 == c2, then it must be true that grid[r1][c1] > grid[r2][c2] after the replacements.
+     * <p>
+     * For example, if grid = [[2, 4, 5], [7, 3, 9]] then a good replacement could be either grid = [[1, 2, 3], [2, 1, 4]] or grid = [[1, 2, 3], [3, 1, 4]].
+     * <p>
+     * Return the resulting matrix. If there are multiple answers, return any of them.
+     */
+    public int[][] minScore(int[][] grid) {
+        int n = grid.length;
+        int m = grid[0].length;
+        PriorityQueue<int[]> min_heap = new PriorityQueue<>(
+                Comparator.comparingInt(a -> a[0])
+        );
+
+        int[] rows = new int[n];
+        int[] cols = new int[m];
+        Arrays.fill(rows, 1);
+        Arrays.fill(cols, 1);
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                min_heap.offer(new int[] { grid[i][j], i, j });
+            }
+        }
+
+        while (!min_heap.isEmpty()) {
+            int[] element = min_heap.poll();
+            int value = element[0];
+            int row = element[1];
+            int col = element[2];
+
+            int val = Math.max(rows[row], cols[col]);
+            grid[row][col] = val;
+
+            rows[row] = val + 1;
+            cols[col] = val + 1;
+        }
+
+        return grid;
     }
 
 
