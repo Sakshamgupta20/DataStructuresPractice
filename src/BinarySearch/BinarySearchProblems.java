@@ -609,4 +609,84 @@ public class BinarySearchProblems {
         return false;
     }
 
+    public boolean[] isArraySpecial(int[] nums, int[][] queries) {
+        boolean[] ans = new boolean[queries.length];
+        ArrayList<Integer> violatingIndices = new ArrayList<>();
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i] % 2 == nums[i - 1] % 2) {
+                violatingIndices.add(i);
+            }
+        }
+
+        for (int i = 0; i < queries.length; i++) {
+            int[] query = queries[i];
+            int start = query[0];
+            int end = query[1];
+
+            boolean foundViolatingIndex = binarySearchIsArraySpecial(start + 1, end, violatingIndices
+            );
+
+            ans[i] = !foundViolatingIndex;
+        }
+
+        return ans;
+    }
+
+    private boolean binarySearchIsArraySpecial(int start, int end, ArrayList<Integer> violatingIndices) {
+        int left = 0;
+        int right = violatingIndices.size() - 1;
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            int violatingIndex = violatingIndices.get(mid);
+
+            if (violatingIndex < start) {
+                left = mid + 1;
+            } else if (violatingIndex > end) {
+                right = mid - 1;
+            } else {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 1891. Cutting Ribbons
+     * You are given an integer array ribbons, where ribbons[i] represents the length of the ith ribbon, and an integer k. You may cut any of the ribbons into any number of segments of positive integer lengths, or perform no cuts at all.
+     * <p>
+     * For example, if you have a ribbon of length 4, you can:
+     * Keep the ribbon of length 4,
+     * Cut it into one ribbon of length 3 and one ribbon of length 1,
+     * Cut it into two ribbons of length 2,
+     * Cut it into one ribbon of length 2 and two ribbons of length 1, or
+     * Cut it into four ribbons of length 1.
+     * Your task is to determine the maximum length of ribbon, x, that allows you to cut at least k ribbons, each of length x. You can discard any leftover ribbon from the cuts. If it is impossible to cut k ribbons of the same length, return 0.
+     */
+    public int maxLength(int[] ribbons, int k) {
+        int left = 1;
+        int right = 0;
+        for (int ribbon : ribbons)
+            right = Math.max(right, ribbon);
+
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if(maxLengthPossible(mid,ribbons,k)) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+        return left - 1;
+
+    }
+
+    public boolean maxLengthPossible(int length, int[] ribbons, int k) {
+        int total = 0;
+        for (int ribbon : ribbons) {
+            total += ribbon / length;
+        }
+        return total >= k;
+    }
+
 }

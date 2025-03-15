@@ -1,5 +1,7 @@
 package Graphs.DisjointSet;
 
+import common.CommonUtils;
+
 import java.util.*;
 
 public class DisjointSetProblems {
@@ -118,7 +120,136 @@ public class DisjointSetProblems {
             } else
                 return edge;
         }
-        return new int[] {};
+        return new int[]{};
+    }
+
+    public List<Boolean> checkIfPrerequisite(int numCourses, int[][] prerequisites, int[][] queries) {
+        Map<Integer, List<Integer>> adjList = new HashMap<>();
+        int[] indegree = new int[numCourses];
+
+        for (int[] edge : prerequisites) {
+            adjList
+                    .computeIfAbsent(edge[0], k -> new ArrayList<>())
+                    .add(edge[1]);
+            indegree[edge[1]]++;
+        }
+
+        Queue<Integer> q = new LinkedList<>();
+        for (int i = 0; i < numCourses; i++) {
+            if (indegree[i] == 0) {
+                q.offer(i);
+            }
+        }
+
+        Map<Integer, Set<Integer>> nodePrerequisites = new HashMap<>();
+
+        while (!q.isEmpty()) {
+            int node = q.poll();
+
+            for (int adj : adjList.getOrDefault(node, new ArrayList<>())) {
+                // Add node and prerequisites of the node to the prerequisites of adj
+                nodePrerequisites
+                        .computeIfAbsent(adj, k -> new HashSet<>())
+                        .add(node);
+                for (int prereq : nodePrerequisites.getOrDefault(
+                        node,
+                        new HashSet<>()
+                )) {
+                    nodePrerequisites.get(adj).add(prereq);
+                }
+
+                indegree[adj]--;
+                if (indegree[adj] == 0) {
+                    q.offer(adj);
+                }
+            }
+        }
+
+        List<Boolean> answer = new ArrayList<>();
+        for (int[] query : queries) {
+            answer.add(
+                    nodePrerequisites
+                            .getOrDefault(query[1], new HashSet<>())
+                            .contains(query[0])
+            );
+        }
+
+        return answer;
+    }
+
+    public int largestIsland(int[][] grid) {
+        int rows = grid.length;
+        int columns = grid[0].length;
+
+        // Initialize DSU for the entire grid
+        DisjointSetIsland ds = new DisjointSetIsland(rows * columns);
+
+        int[] rowDirections = {1, -1, 0, 0};
+        int[] columnDirections = {0, 0, 1, -1};
+
+        for (int currentRow = 0; currentRow < rows; currentRow++) {
+            for (int currentColumn = 0; currentColumn < columns; currentColumn++) {
+                if (grid[currentRow][currentColumn] == 1) {
+                    int currentNode = (columns * currentRow) + currentColumn;
+
+                    for (int direction = 0; direction < 4; direction++) {
+                        int neighborRow = currentRow + rowDirections[direction];
+                        int neighborColumn =
+                                currentColumn + columnDirections[direction];
+
+                        if (CommonUtils.validGrid(rows, columns, neighborRow, neighborColumn) &&
+                                grid[neighborRow][neighborColumn] == 1
+                        ) {
+                            int neighborNode = columns * neighborRow + neighborColumn;
+                            ds.union(currentNode, neighborNode);
+                        }
+                    }
+                }
+            }
+        }
+
+        //Now we have all islands with a leader for them
+
+        int maxIslandSize = 0;
+        boolean hasZero = false;
+        Set<Integer> uniqueRoots = new HashSet<>();
+
+        for (int currentRow = 0; currentRow < rows; currentRow++) {
+            for (int currentColumn = 0; currentColumn < columns; currentColumn++) {
+                if (grid[currentRow][currentColumn] == 0) {
+                    hasZero = true;
+                    int currentIslandSize = 1;
+                    for (int direction = 0; direction < 4; direction++) {
+                        int neighborRow = currentRow + rowDirections[direction];
+                        int neighborColumn =
+                                currentColumn + columnDirections[direction];
+
+                        if (CommonUtils.validGrid(rows, columns, neighborRow, neighborColumn) &&
+                                grid[neighborRow][neighborColumn] == 1
+                        ) {
+                            int neighborNode = columns * neighborRow + neighborColumn;
+                            int root = ds.find(neighborNode);
+                            uniqueRoots.add(root);
+                        }
+                    }
+
+                    for (int root : uniqueRoots) {
+                        currentIslandSize += ds.rank[root];
+                    }
+
+                    // Clear the set for the next `0`
+                    uniqueRoots.clear();
+
+                    // Update the result with the largest island size found
+                    maxIslandSize = Math.max(maxIslandSize, currentIslandSize);
+                }
+            }
+        }
+
+
+        if (!hasZero) return rows * columns;
+
+        return maxIslandSize;
     }
 
 }

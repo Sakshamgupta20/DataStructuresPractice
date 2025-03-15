@@ -470,4 +470,241 @@ public class HeapProblems {
         }
         return totalTime;
     }
+
+    /**
+     * 1760. Minimum Limit of Balls in a Bag
+     * You are given an integer array nums where the ith bag contains nums[i] balls. You are also given an integer maxOperations.
+     * <p>
+     * You can perform the following operation at most maxOperations times:
+     * <p>
+     * Take any bag of balls and divide it into two new bags with a positive number of balls.
+     * For example, a bag of 5 balls can become two new bags of 1 and 4 balls, or two new bags of 2 and 3 balls.
+     * Your penalty is the maximum number of balls in a bag. You want to minimize your penalty after the operations.
+     * <p>
+     * Return the minimum possible penalty after performing the operations.
+     */
+    public int minimumSize(int[] nums, int maxOperations) {
+        // Binary search bounds
+        int left = 1;
+        int right = 0;
+
+        for (int num : nums) {
+            right = Math.max(right, num);
+        }
+
+        while (left < right) {
+            int middle = (left + right) / 2;
+
+            if (isPossible(middle, nums, maxOperations)) {
+                right = middle;
+            } else {
+                left = middle + 1;
+            }
+        }
+        return left;
+    }
+
+    private boolean isPossible(int maxBallsInBag, int[] nums, int maxOperations) {
+        int totalOperations = 0;
+
+        for (int num : nums) {
+            int operations = (int) Math.ceil(num / (double) maxBallsInBag) - 1;
+            totalOperations += operations;
+
+            if (totalOperations > maxOperations) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * 2054. Two Best Non-Overlapping Events
+     * You are given a 0-indexed 2D integer array of events where events[i] = [startTimei, endTimei, valuei]. The ith event starts at startTimei and ends at endTimei, and if you attend this event, you will receive a value of valuei. You can choose at most two non-overlapping events to attend such that the sum of their values is maximized.
+     * <p>
+     * Return this maximum sum.
+     * <p>
+     * Note that the start time and end time is inclusive: that is, you cannot attend two events where one of them starts and the other ends at the same time. More specifically, if you attend an event with end time t, the next event must start at or after t + 1.
+     */
+    public int maxTwoEvents(int[][] events) {
+        Arrays.sort(events, (a, b) -> a[0] - b[0]);
+        int maxVal = 0, maxSum = 0;
+        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[0] - b[0]);
+        for (int[] event : events) {
+            // Poll all valid events from queue and take their maximum.
+            while (!pq.isEmpty() && pq.peek()[1] < event[0]) {
+                maxVal = Math.max(maxVal, pq.peek()[2]);
+                pq.poll();
+            }
+
+            maxSum = Math.max(maxSum, maxVal + event[3]);
+            pq.add(event);
+        }
+
+        return maxSum;
+
+    }
+
+    /**
+     * 2593. Find Score of an Array After Marking All Elements
+     * You are given an array nums consisting of positive integers.
+     * <p>
+     * Starting with score = 0, apply the following algorithm:
+     * <p>
+     * Choose the smallest integer of the array that is not marked. If there is a tie, choose the one with the smallest index.
+     * Add the value of the chosen integer to score.
+     * Mark the chosen element and its two adjacent elements if they exist.
+     * Repeat until all the array elements are marked.
+     * Return the score you get after applying the above algorithm.
+     */
+    public long findScore(int[] nums) {
+        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> {
+            if (a[0] == b[0]) {
+                return a[1] - b[1];
+            }
+            return a[0] - b[0];
+        });
+
+        for (int i = 0; i < nums.length; i++) {
+            pq.add(new int[]{nums[i], i});
+        }
+
+        long sum = 0;
+        while (!pq.isEmpty()) {
+            int[] num = pq.poll();
+
+            int value = nums[num[1]];
+            int index = num[1];
+
+
+            if (value == -1)
+                continue;
+            sum += value;
+            nums[index] = -1;
+
+            if (index != 0 && nums[index - 1] != -1)
+                nums[index - 1] = -1;
+            if (index != nums.length - 1 && nums[index + 1] != -1)
+                nums[index + 1] = -1;
+        }
+        return sum;
+
+    }
+
+    /**
+     * 1792. Maximum Average Pass Ratio
+     * There is a school that has classes of students and each class will be having a final exam. You are given a 2D integer array classes, where classes[i] = [passi, totali]. You know beforehand that in the ith class, there are totali total students, but only passi number of students will pass the exam.
+     * <p>
+     * You are also given an integer extraStudents. There are another extraStudents brilliant students that are guaranteed to pass the exam of any class they are assigned to. You want to assign each of the extraStudents students to a class in a way that maximizes the average pass ratio across all the classes.
+     * <p>
+     * The pass ratio of a class is equal to the number of students of the class that will pass the exam divided by the total number of students of the class. The average pass ratio is the sum of pass ratios of all the classes divided by the number of the classes.
+     * <p>
+     * Return the maximum possible average pass ratio after assigning the extraStudents students. Answers within 10-5 of the actual answer will be accepted.
+     */
+    public double maxAverageRatio(int[][] classes, int extraStudents) {
+        PriorityQueue<double[]> maxHeap = new PriorityQueue<>((a, b) ->
+                Double.compare(b[0], a[0])
+        );
+
+        for (int[] singleClass : classes) {
+            int passes = singleClass[0];
+            int totalStudents = singleClass[1];
+            double gain = calculateGain(passes, totalStudents);
+            maxHeap.offer(new double[]{gain, passes, totalStudents});
+        }
+
+        while (extraStudents-- > 0) {
+            double[] current = maxHeap.poll();
+            int passes = (int) current[1];
+            int totalStudents = (int) current[2];
+            maxHeap.offer(
+                    new double[]{
+                            calculateGain(passes + 1, totalStudents + 1),
+                            passes + 1,
+                            totalStudents + 1,
+                    }
+            );
+        }
+
+        double totalPassRatio = 0;
+        while (!maxHeap.isEmpty()) {
+            double[] current = maxHeap.poll();
+            int passes = (int) current[1];
+            int totalStudents = (int) current[2];
+            totalPassRatio += (double) passes / totalStudents;
+        }
+
+        return totalPassRatio / classes.length;
+    }
+
+    private double calculateGain(int passes, int totalStudents) {
+        return (
+                (double) (passes + 1) / (totalStudents + 1) -
+                        (double) passes / totalStudents
+        );
+    }
+
+    /**
+     * 3264. Final Array State After K Multiplication Operations I
+     * You are given an integer array nums, an integer k, and an integer multiplier.
+     * <p>
+     * You need to perform k operations on nums. In each operation:
+     * <p>
+     * Find the minimum value x in nums. If there are multiple occurrences of the minimum value, select the one that appears first.
+     * Replace the selected minimum value x with x * multiplier.
+     * Return an integer array denoting the final state of nums after performing all k operations.
+     */
+    public int[] getFinalState(int[] nums, int k, int multiplier) {
+        PriorityQueue<int[]> queue = new PriorityQueue<>((a, b) -> {
+            if (a[0] == b[0])
+                return a[1] - b[1];
+            return a[0] - b[0];
+        });
+        for (int i = 0; i < nums.length; i++) {
+            queue.add(new int[]{nums[i], i});
+        }
+        while (k-- > 0) {
+            int[] num = queue.poll();
+            queue.add(new int[]{num[0] * multiplier, num[1]});
+        }
+        int[] ans = new int[nums.length];
+        while (!queue.isEmpty()) {
+            int[] num = queue.poll();
+            ans[num[1]] = num[0];
+        }
+        return ans;
+    }
+
+    /**
+     * 3066. Minimum Operations to Exceed Threshold Value II
+     * You are given a 0-indexed integer array nums, and an integer k.
+     * <p>
+     * In one operation, you will:
+     * <p>
+     * Take the two smallest integers x and y in nums.
+     * Remove x and y from nums.
+     * Add min(x, y) * 2 + max(x, y) anywhere in the array.
+     * Note that you can only apply the described operation if nums contains at least two elements.
+     * <p>
+     * Return the minimum number of operations needed so that all elements of the array are greater than or equal to k.
+     */
+    public int minOperations(int[] nums, int k) {
+        PriorityQueue<Integer> pq = new PriorityQueue<>();
+        for(int num:nums){
+            if(num<k) pq.add(num);
+        }
+        int op = 0;
+
+        while(!pq.isEmpty()){
+            int x = pq.poll();
+            op++;
+            if(pq.isEmpty()) break;
+            int y = pq.poll();
+            long up = 2l * x + y;
+            if(up<k) pq.add((int)up);
+        }
+        return op;
+
+    }
 }

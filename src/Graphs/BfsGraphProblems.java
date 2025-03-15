@@ -573,4 +573,201 @@ public class BfsGraphProblems {
 
         return unguarded;
     }
+
+    /**
+     * 3243. Shortest Distance After Road Addition Queries I
+     * You are given an integer n and a 2D integer array queries.
+     * <p>
+     * There are n cities numbered from 0 to n - 1. Initially, there is a unidirectional road from city i to city i + 1 for all 0 <= i < n - 1.
+     * <p>
+     * queries[i] = [ui, vi] represents the addition of a new unidirectional road from city ui to city vi. After each query, you need to find the length of the shortest path from city 0 to city n - 1.
+     * <p>
+     * Return an array answer where for each i in the range [0, queries.length - 1], answer[i] is the length of the shortest path from city 0 to city n - 1 after processing the first i + 1 queries.
+     */
+    public int[] shortestDistanceAfterQueries(int n, int[][] queries) {
+        List<Integer> answer = new ArrayList<>();
+        List<List<Integer>> adjList = new ArrayList<>(n);
+
+        for (int i = 0; i < n; i++) {
+            adjList.add(new ArrayList<>());
+            adjList.get(i).add(i + 1);
+        }
+
+        for (int[] road : queries) {
+            int u = road[0];
+            int v = road[1];
+            adjList.get(u).add(v);
+            answer.add(findMinDistanceBfs(adjList, n));
+        }
+
+        return answer.stream().mapToInt(i -> i).toArray();
+
+    }
+
+    private Integer findMinDistanceBfs(List<List<Integer>> adjList, int n) {
+        Set<Integer> visit = new HashSet<>();
+        Queue<int[]> nodeQueue = new LinkedList<>();
+        nodeQueue.add(new int[]{0, 0});
+        visit.add(0);
+
+        while (!nodeQueue.isEmpty()) {
+            int[] currentNode = nodeQueue.poll();
+            int cur = currentNode[0];
+            int length = currentNode[1];
+
+            if (cur == n - 1) {
+                return length;
+            }
+
+
+            for (int neighbor : adjList.get(cur)) {
+                if (!visit.contains(neighbor)) {
+                    nodeQueue.offer(new int[]{neighbor, currentNode[1] += 1});
+                    visit.add(neighbor);
+                }
+            }
+        }
+
+        return -1;
+
+    }
+
+    /**
+     * 2290. Minimum Obstacle Removal to Reach Corner
+     * You are given a 0-indexed 2D integer array grid of size m x n. Each cell has one of two values:
+     * <p>
+     * 0 represents an empty cell,
+     * 1 represents an obstacle that may be removed.
+     * You can move up, down, left, or right from and to an empty cell.
+     * <p>
+     * Return the minimum number of obstacles to remove so you can move from the upper left corner (0, 0) to the lower right corner (m - 1, n - 1).
+     */
+    public int minimumObstacles(int[][] grid) {
+        int n = grid.length; // Number of rows in the grid
+        int m = grid[0].length; // Number of columns in the grid
+
+        // Array to track the minimum obstacles removed to reach each cell
+        int[][] seen = new int[n][m];
+        // Initialize seen with a large value to represent unvisited state
+        for (int i = 0; i < n; i++) {
+            Arrays.fill(seen[i], Integer.MAX_VALUE);
+        }
+
+        // Double-ended queue for 0-1 BFS
+        Deque<Step> queue = new LinkedList<>();
+
+        // Start from the top-left corner (0, 0) with 0 obstacles removed
+        queue.add(new Step(0, 0, 0));
+        seen[0][0] = 0;
+
+        // Predefined directions for moving up, down, left, and right
+        int[][] directions = CommonUtils.getVerticalHorizontalDirections();
+
+        // Perform 0-1 BFS
+        while (!queue.isEmpty()) {
+            Step step = queue.poll();
+            int row = step.row;
+            int column = step.column;
+            int steps = step.steps;
+
+            // If we reach the bottom-right corner, return the number of obstacles removed
+            if (row == n - 1 && column == m - 1) {
+                return steps;
+            }
+
+            // Explore all possible directions
+            for (int[] direction : directions) {
+                int newRow = row + direction[0];
+                int newColumn = column + direction[1];
+
+                // Check if the new cell is within bounds and not yet visited
+                if (CommonUtils.validGrid(n, m, newRow, newColumn) && seen[newRow][newColumn] == Integer.MAX_VALUE) {
+                    // If the new cell has an obstacle
+                    if (grid[newRow][newColumn] == 1) {
+                        // Add 1 to the obstacle count and push to the back of the queue
+                        seen[newRow][newColumn] = steps + 1;
+                        queue.addLast(new Step(newRow, newColumn, steps + 1));
+                    } else {
+                        // If it's an empty cell, retain the obstacle count and push to the front of the queue
+                        seen[newRow][newColumn] = steps;
+                        queue.addFirst(new Step(newRow, newColumn, steps));
+                    }
+                }
+            }
+        }
+
+        // If we cannot reach the bottom-right corner, return -1 (shouldn't happen for valid grids)
+        return -1;
+    }
+
+    /**
+     * 2658. Maximum Number of Fish in a Grid
+     * You are given a 0-indexed 2D matrix grid of size m x n, where (r, c) represents:
+     * <p>
+     * A land cell if grid[r][c] = 0, or
+     * A water cell containing grid[r][c] fish, if grid[r][c] > 0.
+     * A fisher can start at any water cell (r, c) and can do the following operations any number of times:
+     * <p>
+     * Catch all the fish at cell (r, c), or
+     * Move to any adjacent water cell.
+     * Return the maximum number of fish the fisher can catch if he chooses his starting cell optimally, or 0 if no water cell exists.
+     * <p>
+     * An adjacent cell of the cell (r, c), is one of the cells (r, c + 1), (r, c - 1), (r + 1, c) or (r - 1, c) if it exists.
+     */
+    public int findMaxFish(int[][] grid) {
+        int numRows = grid.length, numCols = grid[0].length, result = 0;
+        boolean[][] visited = new boolean[numRows][numCols];
+
+        // Iterating through the entire grid
+        for (int i = 0; i < numRows; i++) {
+            for (int j = 0; j < numCols; j++) {
+                if (grid[i][j] != 0 && !visited[i][j]) {
+                    result = Math.max(result, countFishes(grid, visited, i, j));
+                }
+            }
+        }
+        return result;
+    }
+
+    private int countFishes(
+            int[][] grid,
+            boolean[][] visited,
+            int row,
+            int col
+    ) {
+        int numRows = grid.length, numCols = grid[0].length, fishCount = 0;
+        Queue<int[]> q = new LinkedList<>();
+        q.add(new int[] { row, col });
+        visited[row][col] = true;
+
+        // Directions for exploring up, down, left, right
+        int[] rowDirections = { 0, 0, 1, -1 };
+        int[] colDirections = { 1, -1, 0, 0 };
+
+        // BFS traversal
+        while (!q.isEmpty()) {
+            int[] cell = q.poll();
+            row = cell[0];
+            col = cell[1];
+            fishCount += grid[row][col];
+
+            // Exploring all four directions
+            for (int i = 0; i < 4; i++) {
+                int newRow = row + rowDirections[i];
+                int newCol = col + colDirections[i];
+                if (
+                        0 <= newRow &&
+                                newRow < numRows &&
+                                0 <= newCol &&
+                                newCol < numCols &&
+                                grid[newRow][newCol] != 0 &&
+                                !visited[newRow][newCol]
+                ) {
+                    q.add(new int[] { newRow, newCol });
+                    visited[newRow][newCol] = true;
+                }
+            }
+        }
+        return fishCount;
+    }
 }

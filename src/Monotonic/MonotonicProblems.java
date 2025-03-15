@@ -284,7 +284,7 @@ public class MonotonicProblems {
             if (!deque.isEmpty() && i - deque.getFirst() >= k)
                 deque.removeFirst();
 
-            if(!deque.isEmpty() && nums[deque.getLast()] + 1 != nums[i])
+            if (!deque.isEmpty() && nums[deque.getLast()] + 1 != nums[i])
                 deque.clear();
 
             deque.add(i);
@@ -294,6 +294,21 @@ public class MonotonicProblems {
                 ans[index++] = deque.size() == k ? nums[deque.getLast()] : -1;
             }
 
+        }
+        return ans;
+    }
+
+    public int[] maximumLengthOfRanges(int[] nums) {
+        Stack<Integer> stack = new Stack<>();
+        int[] ans = new int[nums.length];
+        for (int i = 0; i <= nums.length; i++) {
+            int current = i < nums.length ? nums[i] : Integer.MAX_VALUE;
+
+            while (!stack.isEmpty() && nums[stack.peek()] < current) {
+                int idx = stack.pop();
+                ans[idx] = (i - idx) + (stack.isEmpty() ? idx : idx - stack.peek() - 1);
+            }
+            if (i < nums.length) stack.push(i);
         }
         return ans;
     }

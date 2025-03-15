@@ -110,11 +110,11 @@ public class SlidingWindow {
         long max = 0;
 
         int maxNum = 0;
-        for(int num:nums){
-            maxNum = Math.max(maxNum,num);
+        for (int num : nums) {
+            maxNum = Math.max(maxNum, num);
         }
-        int[] counts = new int[maxNum+1];
-        Arrays.fill(counts,-1);
+        int[] counts = new int[maxNum + 1];
+        Arrays.fill(counts, -1);
 
         for (int right = 0; right < nums.length; right++) {
             int num = nums[right];
@@ -171,5 +171,61 @@ public class SlidingWindow {
         }
         return n - max;
 
+    }
+
+    /**
+     * 2762. Continuous Subarrays
+     * You are given a 0-indexed integer array nums. A subarray of nums is called continuous if:
+     * <p>
+     * Let i, i + 1, ..., j be the indices in the subarray. Then, for each pair of indices i <= i1, i2 <= j, 0 <= |nums[i1] - nums[i2]| <= 2.
+     * Return the total number of continuous subarrays.
+     * <p>
+     * A subarray is a contiguous non-empty sequence of elements within an array.
+     */
+    public long continuousSubarrays(int[] nums) {
+        int right = 0, left = 0;
+        int curMin, curMax;
+        long windowLen = 0, total = 0;
+
+        // Initialize window with first element
+        curMin = curMax = nums[right];
+
+        for (right = 0; right < nums.length; right++) {
+            // Update min and max for current window
+            curMin = Math.min(curMin, nums[right]);
+            curMax = Math.max(curMax, nums[right]);
+
+            // If window condition breaks (diff > 2)
+            if (curMax - curMin > 2) {
+                // Add subarrays from previous valid window
+                windowLen = right - left;
+                total += ((windowLen * (windowLen + 1)) / 2);
+
+                // Start new window at current position
+                left = right;
+                curMin = curMax = nums[right];
+
+                // Expand left boundary while maintaining condition
+                while (
+                        left > 0 && Math.abs(nums[right] - nums[left - 1]) <= 2
+                ) {
+                    left--;
+                    curMin = Math.min(curMin, nums[left]);
+                    curMax = Math.max(curMax, nums[left]);
+                }
+
+                // Remove overcounted subarrays if left boundary expanded
+                if (left < right) {
+                    windowLen = right - left;
+                    total -= ((windowLen * (windowLen + 1)) / 2);
+                }
+            }
+        }
+
+        // Add subarrays from final window
+        windowLen = right - left;
+        total += ((windowLen * (windowLen + 1)) / 2);
+
+        return total;
     }
 }

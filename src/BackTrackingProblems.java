@@ -472,8 +472,8 @@ public class BackTrackingProblems {
             int currDiagonal = row - col;
             int currAntiDiagonal = row + col;
             if (columns.contains(col) ||
-                            diagonal.contains(currDiagonal) ||
-                            reverseDiagonal.contains(currAntiDiagonal)) {
+                    diagonal.contains(currDiagonal) ||
+                    reverseDiagonal.contains(currAntiDiagonal)) {
                 continue;
             }
             // "Add" the queen to the board
@@ -501,6 +501,46 @@ public class BackTrackingProblems {
         }
 
         return board;
+    }
+
+    /**
+     * 1415. The k-th Lexicographical String of All Happy Strings of Length n
+     * A happy string is a string that:
+     * <p>
+     * consists only of letters of the set ['a', 'b', 'c'].
+     * s[i] != s[i + 1] for all values of i from 1 to s.length - 1 (string is 1-indexed).
+     * For example, strings "abc", "ac", "b" and "abcbabcbcb" are all happy strings and strings "aa", "baa" and "ababbc" are not happy strings.
+     * <p>
+     * Given two integers n and k, consider a list of all happy strings of length n sorted in lexicographical order.
+     * <p>
+     * Return the kth string of this list or return an empty string if there are less than k happy strings of length n.
+     */
+    public String getHappyString(int n, int k) {
+        int bracketSize = (int) Math.pow(2, n - 1);
+        if(bracketSize * 3 < k)
+            return "";
+        int bracket = k / bracketSize;
+        int diff = k % bracketSize;
+        if(diff > 0)
+            bracket += 1;
+        char curr = (char) (bracket - 1 + 'a');
+
+        k = k - ((bracket - 1) * bracketSize);
+        return getHappyStringDfs(new StringBuilder(curr + ""), n, new int[] {k});
+    }
+
+    private String getHappyStringDfs(StringBuilder sb, int n, int[] k) {
+        if (sb.length() == n) return --k[0] == 0 ? sb.toString() : "";
+        for (char i = 'a'; i <= 'c'; i++) {
+            if (sb.charAt(sb.length() - 1) == i) continue;
+            sb.append(i);
+            String r = getHappyStringDfs(sb, n, k);
+            if(!r.isEmpty())
+                return r;
+            sb.deleteCharAt(sb.length() - 1); // Backtrack
+        }
+        return "";
+
     }
 
 }

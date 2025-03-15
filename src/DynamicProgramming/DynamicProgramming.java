@@ -261,5 +261,19 @@ public class DynamicProgramming {
         return maxRob;
     }
 
-    
+    public int fin(int n) {
+        int[] dp = new int[n];
+        Arrays.fill(dp,-1);
+        return fibRec(n, dp);
+    }
+
+    private int fibRec(int n, int[] dp) {
+        if (n <= 1)
+            return n;
+        if (dp[n] != -1)
+            return dp[n];
+        return dp[n] = fibRec(n - 1, dp) + fibRec(n - 2, dp);
+    }
+
+
 }

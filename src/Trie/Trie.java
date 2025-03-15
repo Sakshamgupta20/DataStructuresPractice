@@ -2,7 +2,7 @@ package Trie;
 
 import java.util.HashMap;
 
-class Trie {
+public class Trie {
     HashMap<Character, Trie> map;
     boolean word;
 

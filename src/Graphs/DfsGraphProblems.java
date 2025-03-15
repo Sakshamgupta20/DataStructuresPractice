@@ -409,7 +409,7 @@ public class DfsGraphProblems {
             LinkedList<String> destList = ticketsMap.get(from);
             while (!destList.isEmpty()) {
                 String dest = destList.pollFirst();
-                findItinerary(dest,ticketsMap,answers);
+                findItinerary(dest, ticketsMap, answers);
             }
         }
         answers.offerFirst(from);
@@ -552,5 +552,84 @@ public class DfsGraphProblems {
         return true;
     }
 
+    /**
+     * 2097. Valid Arrangement of Pairs
+     * You are given a 0-indexed 2D integer array pairs where pairs[i] = [starti, endi]. An arrangement of pairs is valid if for every index i where 1 <= i < pairs.length, we have endi-1 == starti.
+     * <p>
+     * Return any valid arrangement of pairs.
+     * <p>
+     * Note: The inputs will be generated such that there exists a valid arrangement of pairs.
+     */
+    public int[][] validArrangement(int[][] pairs) {
+        Map<Integer, Deque<Integer>> adjacencyMatrix = new HashMap<>();
+        Map<Integer, Integer> inDegree = new HashMap<>();
+        Map<Integer, Integer> outDegree = new HashMap<>();
+
+        // Build the adjacency list and track in-degrees and out-degrees
+        for (int[] pair : pairs) {
+            int start = pair[0], end = pair[1];
+            adjacencyMatrix
+                    .computeIfAbsent(start, k -> new ArrayDeque<>())
+                    .add(end);
+            outDegree.put(start, outDegree.getOrDefault(start, 0) + 1);
+            inDegree.put(end, inDegree.getOrDefault(end, 0) + 1);
+        }
+
+        // Find the start node (outDegree == inDegree + 1)
+        int startNode = -1;
+        for (int node : outDegree.keySet()) {
+            if (outDegree.get(node) == inDegree.getOrDefault(node, 0) + 1) {
+                startNode = node;
+                break;
+            }
+        }
+
+        if (startNode == -1) {
+            startNode = pairs[0][0];
+        }
+
+        List<Integer> result = new ArrayList<>();
+
+        validArrangement(startNode, adjacencyMatrix, result);
+
+        Collections.reverse(result);
+
+        // Construct the result pairs
+        int[][] pairedResult = new int[result.size() - 1][2];
+        for (int i = 1; i < result.size(); i++) {
+            pairedResult[i - 1] = new int[]{
+                    result.get(i - 1),
+                    result.get(i),
+            };
+        }
+
+        return pairedResult;
+    }
+
+
+    private void validArrangement(int node, Map<Integer, Deque<Integer>> adjMatrix, List<Integer> res) {
+        Deque<Integer> neighbors = adjMatrix.get(node);
+        while (neighbors != null && !neighbors.isEmpty()) {
+            int nextNode = neighbors.pollFirst();
+            validArrangement(nextNode, adjMatrix, res);
+        }
+        res.add(node);
+    }
+
+    /**
+     * 2204. Distance to a Cycle in Undirected Graphs
+     * You are given a positive integer n representing the number of nodes in a connected undirected graph containing exactly one cycle. The nodes are numbered from 0 to n - 1 (inclusive).
+     * <p>
+     * You are also given a 2D integer array edges, where edges[i] = [node1i, node2i] denotes that there is a bidirectional edge connecting node1i and node2i in the graph.
+     * <p>
+     * The distance between two nodes a and b is defined to be the minimum number of edges that are needed to go from a to b.
+     * <p>
+     * Return an integer array answer of size n, where answer[i] is the minimum distance between the ith node and any node in the cycle.
+     */
+    public int[] distanceToCycle(int n, int[][] edges) {
+        return null;
+        //TODO
+
+    }
 
 }

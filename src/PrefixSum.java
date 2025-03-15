@@ -111,10 +111,10 @@ public class PrefixSum {
 
 
         for (int i = 0; i < n; i++) {
-            if(k > 0) {
+            if (k > 0) {
                 int sum = 0;
                 int next = i + k;
-                if(next >= n) {
+                if (next >= n) {
                     sum += prefixSums[n - 1];
                     int remaining = next - n;
                     sum += prefixSums[remaining];
@@ -125,13 +125,13 @@ public class PrefixSum {
                 ans[i] = sum;
             }
 
-            if(k < 0) {
+            if (k < 0) {
                 int sum = 0;
                 int next = i + k;
                 sum += prefixSums[i] - code[i];
-                if(next <= 0) {
+                if (next <= 0) {
                     sum += prefixSums[n - 1] - prefixSums[n + next - 1];
-                } else  {
+                } else {
                     sum -= prefixSums[next - 1];
                 }
                 ans[i] = sum;
@@ -139,5 +139,136 @@ public class PrefixSum {
         }
         return ans;
 
+    }
+
+    /**
+     * 2599. Make the Prefix Sum Non-negative
+     * You are given a 0-indexed integer array nums. You can apply the following operation any number of times:
+     * <p>
+     * Pick any element from nums and put it at the end of nums.
+     * The prefix sum array of nums is an array prefix of the same length as nums such that prefix[i] is the sum of all the integers nums[j] where j is in the inclusive range [0, i].
+     * <p>
+     * Return the minimum number of operations such that the prefix sum array does not contain negative integers. The test cases are generated such that it is always possible to make the prefix sum array non-negative.
+     */
+    public int makePrefSumNonNegative(int[] nums) {
+        int operations = 0;
+        long prefixSum = 0;
+        PriorityQueue<Integer> pq = new PriorityQueue<>();
+
+        for (int num : nums) {
+            if (num < 0) {
+                pq.offer(num);
+            }
+            prefixSum += num;
+            if (prefixSum < 0) {
+                prefixSum -= pq.poll();
+                operations++;
+            }
+        }
+
+        return operations;
+
+    }
+
+    /**
+     * 2364. Count Number of Bad Pairs
+     * You are given a 0-indexed integer array nums. A pair of indices (i, j) is a bad pair if i < j and j - i != nums[j] - nums[i].
+     * <p>
+     * Return the total number of bad pairs in nums.
+     */
+    public long countBadPairs(int[] nums) {
+        long badPairs = 0;
+        Map<Integer, Integer> diffCount = new HashMap<>();
+        for (int pos = 0; pos < nums.length; pos++) {
+            int diff = pos - nums[pos];
+            int goodPairsCount = diffCount.getOrDefault(diff, 0);
+            badPairs += pos - goodPairsCount;
+            diffCount.put(diff, goodPairsCount + 1);
+        }
+        return badPairs;
+    }
+
+    /**
+     * 1524. Number of Sub-arrays With Odd Sum
+     * Medium
+     * Given an array of integers arr, return the number of subarrays with an odd sum.
+     * <p>
+     * Since the answer can be very large, return it modulo 109 + 7.
+     */
+    public int numOfSubarrays(int[] arr) {
+        HashMap<Integer, Integer> odds = new HashMap<>();
+        HashMap<Integer, Integer> oddsRes = new HashMap<>();
+
+        odds.put(0, -1);  // Base case: Before array starts
+        oddsRes.put(0, 0);
+        oddsRes.put(-1, 0); // Fix: Prevent null access for `oddCount - 2`
+
+        int n = arr.length;
+        int oddCount = 0;
+        long ans = 0;
+        int MOD = 1_000_000_007;
+
+        for (int i = 0; i < n; i++) {
+            int num = arr[i];
+
+            if (num % 2 != 0) { // If current number is odd
+                int res = 0;
+
+                // Get last occurrence of this odd count
+                int lastIndex = odds.getOrDefault(oddCount, -1);
+                res += (i - lastIndex);
+
+                oddCount++;
+
+                // Include previous odd subarray results if applicable
+                res += oddsRes.getOrDefault(oddCount - 2, 0);
+
+                ans = (ans + res) % MOD;
+                odds.put(oddCount, i);
+                oddsRes.put(oddCount, res);
+            } else { // If current number is even
+                ans = (ans + oddsRes.getOrDefault(oddCount, 0)) % MOD;
+            }
+        }
+
+        return (int) ans;
+    }
+
+    /**
+     * 1749. Maximum Absolute Sum of Any Subarray
+     * Medium
+     * Topics
+     * Companies
+     * Hint
+     * You are given an integer array nums. The absolute sum of a subarray [numsl, numsl+1, ..., numsr-1, numsr] is abs(numsl + numsl+1 + ... + numsr-1 + numsr).
+     * <p>
+     * Return the maximum absolute sum of any (possibly empty) subarray of nums.
+     * <p>
+     * Note that abs(x) is defined as follows:
+     * <p>
+     * If x is a negative integer, then abs(x) = -x.
+     * If x is a non-negative integer, then abs(x) = x.
+     *
+     * @param nums
+     * @return
+     */
+    public int maxAbsoluteSum(int[] nums) {
+        int negative = 0;
+        int positive = 0;
+        int max = 0;
+
+        for (int right = 0; right < nums.length; right++) {
+            int num = nums[right];
+            positive += num;
+            if(positive < 0)
+                positive = 0;
+
+            negative += num;
+            if(negative > 0)
+                negative = 0;
+            max = Math.max(max,Math.abs(negative));
+            max = Math.max(max,Math.abs(positive));
+        }
+        return max;
     }
 }

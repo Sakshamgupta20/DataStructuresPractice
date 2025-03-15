@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class TreeProblems {
     public void postOrder(TreeNode node) {
@@ -799,13 +800,325 @@ public class TreeProblems {
     public int maxPathSum(TreeNode root, AtomicInteger max) {
         if (root == null)
             return 0;
-        int left = Math.max(maxPathSum(root.left, max),0);
-        int right = Math.max(maxPathSum(root.right, max),0);
+        int left = Math.max(maxPathSum(root.left, max), 0);
+        int right = Math.max(maxPathSum(root.right, max), 0);
 
         int currentMax = root.val + left + right;
         max.set(Math.max(max.get(), currentMax));
 
         return root.val + Math.max(left, right);
     }
+
+    /**
+     * 2924. Find Champion II
+     * There are n teams numbered from 0 to n - 1 in a tournament; each team is also a node in a DAG.
+     * <p>
+     * You are given the integer n and a 0-indexed 2D integer array edges of length m representing the DAG, where edges[i] = [ui, vi] indicates that there is a directed edge from team ui to team vi in the graph.
+     * <p>
+     * A directed edge from a to b in the graph means that team a is stronger than team b and team b is weaker than team a.
+     * <p>
+     * Team a will be the champion of the tournament if there is no team b that is stronger than team a.
+     * <p>
+     * Return the team that will be the champion of the tournament if there is a unique champion, otherwise, return -1.
+     * <p>
+     * Notes
+     * <p>
+     * A cycle is a series of nodes a1, a2, ..., an, an+1 such that node a1 is the same node as node an+1, the nodes a1, a2, ..., an are distinct, and there is a directed edge from the node ai to node ai+1 for every i in the range [1, n].
+     * A DAG is a directed graph that does not have any cycle.
+     */
+    public int findChampion(int n, int[][] edges) {
+        int[] weakTeams = new int[n];
+        for (int[] edge : edges) {
+            weakTeams[edge[1]]++;
+        }
+        int result = -1;
+
+        for (int i = 0; i < n; i++) {
+            if (weakTeams[i] == 0 && result != -1) {
+                return -1;
+            } else if (weakTeams[i] == 0) {
+                result = i;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * 2415. Reverse Odd Levels of Binary Tree
+     * Given the root of a perfect binary tree, reverse the node values at each odd level of the tree.
+     * <p>
+     * For example, suppose the node values at level 3 are [2,1,3,4,7,11,29,18], then it should become [18,29,11,7,4,3,1,2].
+     * Return the root of the reversed tree.
+     * <p>
+     * A binary tree is perfect if all parent nodes have two children and all leaves are on the same level.
+     * <p>
+     * The level of a node is the number of edges along the path between it and the root node.
+     */
+    public TreeNode reverseOddLevels(TreeNode root) {
+        if (root == null) {
+            return null;
+        }
+
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.add(root);
+        int level = 0;
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            List<TreeNode> currentLevelNodes = new ArrayList<>();
+
+            // Process all nodes at the current level.
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+                currentLevelNodes.add(node);
+
+                if (node.left != null) queue.add(node.left);
+                if (node.right != null) queue.add(node.right);
+            }
+
+            if (level % 2 == 1) {
+                int left = 0, right = currentLevelNodes.size() - 1;
+                while (left < right) {
+                    int temp = currentLevelNodes.get(left).val;
+                    currentLevelNodes.get(left).val = currentLevelNodes.get(right).val;
+                    currentLevelNodes.get(right).val = temp;
+                    left++;
+                    right--;
+                }
+            }
+
+            level++;
+        }
+
+        return root;
+    }
+
+    /**
+     * 2872. Maximum Number of K-Divisible Components
+     * There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+     * <p>
+     * You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the ith node, and an integer k.
+     * <p>
+     * A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+     * <p>
+     * Return the maximum number of components in any valid split.
+     */
+    public int maxKDivisibleComponents(int n, int[][] edges, int[] values, int k) {
+        List<Integer>[] adjList = new ArrayList[n];
+
+        for (int i = 0; i < n; i++) {
+            adjList[i] = new ArrayList<>();
+        }
+
+        for (int[] edge : edges) {
+            adjList[(edge[0])].add(edge[1]);
+            adjList[(edge[1])].add(edge[0]);
+        }
+
+        int[] componentCount = new int[1];
+
+        maxKDivisibleComponentsDfs(adjList, 0, -1, values, k, componentCount);
+
+        return componentCount[0];
+    }
+
+    private int maxKDivisibleComponentsDfs(List<Integer>[] adjList, int node, int parentNode, int[] values, int k, int[] componentCount) {
+
+        int sum = 0;
+        for (Integer neighbor : adjList[node]) {
+            if (neighbor != parentNode) {
+                sum += maxKDivisibleComponentsDfs(adjList, neighbor, node, values, k, componentCount);
+                sum %= k;
+            }
+        }
+        sum += values[node];
+        sum %= k;
+
+        if (sum == 0) {
+            componentCount[0]++;
+        }
+
+        return sum;
+    }
+
+    /**
+     * 1028. Recover a Tree From Preorder Traversal
+     * We run a preorder depth-first search (DFS) on the root of a binary tree.
+     * <p>
+     * At each node in this traversal, we output D dashes (where D is the depth of this node), then we output the value of this node.  If the depth of a node is D, the depth of its immediate child is D + 1.  The depth of the root node is 0.
+     * <p>
+     * If a node has only one child, that child is guaranteed to be the left child.
+     * <p>
+     * Given the output traversal of this traversal, recover the tree and return its root.
+     */
+    public TreeNode recoverFromPreorder(String traversal) {
+        List<TreeNode> levels = new ArrayList<>();
+        int index = 0, n = traversal.length();
+
+        while (index < n) {
+            int depth = 0;
+            while (index < n && traversal.charAt(index) == '-') {
+                depth++;
+                index++;
+            }
+
+            // Extract node value
+            int value = 0;
+            while (index < n && Character.isDigit(traversal.charAt(index))) {
+                value = value * 10 + (traversal.charAt(index) - '0');
+                index++;
+            }
+
+            // Create the new node
+            TreeNode node = new TreeNode(value);
+
+            // Adjust levels list to match the current depth
+            if (depth < levels.size()) {
+                levels.set(depth, node);
+            } else {
+                levels.add(node);
+            }
+
+            // Attach the node to its parent
+            if (depth > 0) {
+                TreeNode parent = levels.get(depth - 1);
+                if (parent.left == null) {
+                    parent.left = node;
+                } else {
+                    parent.right = node;
+                }
+            }
+        }
+
+        // The root node is always at index 0
+        return levels.get(0);
+    }
+
+    public TreeNode constructFromPrePost(int[] preorder, int[] postorder) {
+        int n = postorder.length;
+        int[] postIndex = new int[n + 1];
+        for (int i = 0; i < n; i++) {
+            postIndex[postorder[i]] = i;
+        }
+
+        return constructFromPrePost(0, n - 1, 0, preorder, postIndex);
+    }
+
+    private TreeNode constructFromPrePost(int preStart, int preEnd, int postStart, int[] preorder, int[] postIndex) {
+        if (preStart > preEnd)
+            return null;
+        if (preStart == preEnd)
+            return new TreeNode(preorder[preStart]);
+
+        int leftNode = preorder[preStart + 1];
+        int totalLeftNodes = postIndex[leftNode] - postStart + 1;
+
+        TreeNode root = new TreeNode(preorder[preStart]);
+
+        root.left = constructFromPrePost(preStart + 1,
+                preStart + totalLeftNodes, postStart, preorder, postIndex);
+
+        root.right = constructFromPrePost(preStart + totalLeftNodes + 1,
+                preEnd, postStart + totalLeftNodes, preorder, postIndex);
+        return root;
+    }
+
+    /**
+     * 2467. Most Profitable Path in a Tree
+     * There is an undirected tree with n nodes labeled from 0 to n - 1, rooted at node 0. You are given a 2D integer array edges of length n - 1 where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+     * <p>
+     * At every node i, there is a gate. You are also given an array of even integers amount, where amount[i] represents:
+     * <p>
+     * the price needed to open the gate at node i, if amount[i] is negative, or,
+     * the cash reward obtained on opening the gate at node i, otherwise.
+     * The game goes on as follows:
+     * <p>
+     * Initially, Alice is at node 0 and Bob is at node bob.
+     * At every second, Alice and Bob each move to an adjacent node. Alice moves towards some leaf node, while Bob moves towards node 0.
+     * For every node along their path, Alice and Bob either spend money to open the gate at that node, or accept the reward. Note that:
+     * If the gate is already open, no price will be required, nor will there be any cash reward.
+     * If Alice and Bob reach the node simultaneously, they share the price/reward for opening the gate there. In other words, if the price to open the gate is c, then both Alice and Bob pay c / 2 each. Similarly, if the reward at the gate is c, both of them receive c / 2 each.
+     * If Alice reaches a leaf node, she stops moving. Similarly, if Bob reaches node 0, he stops moving. Note that these events are independent of each other.
+     * Return the maximum net income Alice can have if she travels towards the optimal leaf node.
+     */
+    public int mostProfitablePath(int[][] edges, int bob, int[] amount) {
+        int n = amount.length, maxIncome = Integer.MIN_VALUE;
+        Map<Integer, Integer> bobPath = new HashMap<>();
+        boolean[] visited = new boolean[n];
+        List<List<Integer>> tree = new ArrayList<>();
+        Queue<int[]> nodeQueue = new LinkedList<>();
+        nodeQueue.add(new int[]{0, 0, 0});
+
+        for (int i = 0; i < n; i++) {
+            tree.add(new ArrayList<>());
+        }
+
+        // Form tree with edges
+        for (int[] edge : edges) {
+            tree.get(edge[0]).add(edge[1]);
+            tree.get(edge[1]).add(edge[0]);
+        }
+
+        findBobPath(bob, 0,bobPath,visited,tree);
+
+        Arrays.fill(visited, false);
+
+        while (!nodeQueue.isEmpty()) {
+            int[] node = nodeQueue.poll();
+            int sourceNode = node[0], time = node[1], income = node[2];
+
+            // Alice reaches the node first
+            if (
+                    !bobPath.containsKey(sourceNode) ||
+                            time < bobPath.get(sourceNode)
+            ) {
+                income += amount[sourceNode];
+            }
+            // Alice and Bob reach the node at the same time
+            else if (time == bobPath.get(sourceNode)) {
+                income += amount[sourceNode] / 2;
+            }
+
+            // Update max value if current node is a new leaf
+            if (tree.get(sourceNode).size() == 1 && sourceNode != 0) {
+                maxIncome = Math.max(maxIncome, income);
+            }
+            // Explore adjacent unvisited vertices
+            for (int adjacentNode : tree.get(sourceNode)) {
+                if (!visited[adjacentNode]) {
+                    nodeQueue.add(new int[] { adjacentNode, time + 1, income });
+                }
+            }
+
+            // Mark and remove current node
+            visited[sourceNode] = true;
+        }
+        return maxIncome;
+    }
+
+    private boolean findBobPath(int sourceNode, int time, Map<Integer, Integer> bobPath, boolean[] visited, List<List<Integer>> tree) {
+        // Mark and set time node is reached
+        bobPath.put(sourceNode, time);
+        visited[sourceNode] = true;
+
+        // Destination for Bob is found
+        if (sourceNode == 0) {
+            return true;
+        }
+
+        // Traverse through unvisited nodes
+        for (int adjacentNode : tree.get(sourceNode)) {
+            if (!visited[adjacentNode]) {
+                if (findBobPath(adjacentNode, time + 1, bobPath, visited, tree)) {
+                    return true;
+                }
+            }
+        }
+        // If node 0 isn't reached, remove current node from path
+        bobPath.remove(sourceNode);
+        return false;
+    }
+
 
 }

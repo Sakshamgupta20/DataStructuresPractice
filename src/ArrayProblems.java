@@ -1,3 +1,5 @@
+import Trie.Trie;
+import Trie.WordDictionary;
 import common.CommonUtils;
 
 import java.util.*;
@@ -443,7 +445,7 @@ public class ArrayProblems {
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
-                min_heap.offer(new int[] { grid[i][j], i, j });
+                min_heap.offer(new int[]{grid[i][j], i, j});
             }
         }
 
@@ -461,6 +463,492 @@ public class ArrayProblems {
         }
 
         return grid;
+    }
+
+    /**
+     * 2923. Find Champion I
+     * There are n teams numbered from 0 to n - 1 in a tournament.
+     * <p>
+     * Given a 0-indexed 2D boolean matrix grid of size n * n. For all i, j that 0 <= i, j <= n - 1 and i != j team i is stronger than team j if grid[i][j] == 1, otherwise, team j is stronger than team i.
+     * <p>
+     * Team a will be the champion of the tournament if there is no team b that is stronger than team a.
+     * <p>
+     * Return the team that will be the champion of the tournament.
+     */
+    public int findChampion(int[][] grid) {
+        int n = grid.length;
+        Set<Integer> weakTeams = new HashSet<>();
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] == 1)
+                    weakTeams.add(j);
+            }
+        }
+        for (int i = 0; i < n; i++) {
+            if (!weakTeams.contains(i))
+                return i;
+        }
+        return -1;
+    }
+
+    /**
+     * 1346. Check If N and Its Double Exist
+     * Given an array arr of integers, check if there exist two indices i and j such that :
+     * <p>
+     * i != j
+     * 0 <= i, j < arr.length
+     * arr[i] == 2 * arr[j]
+     */
+    public boolean checkIfExist(int[] arr) {
+        Set<Integer> seen = new HashSet<>();
+
+        for (int num : arr) {
+            // Check if 2 * num or num / 2 exists in the set
+            if (
+                    seen.contains(2 * num) ||
+                            (num % 2 == 0 && seen.contains(num / 2))
+            ) {
+                return true;
+            }
+            // Add the current number to the set
+            seen.add(num);
+        }
+        // No valid pair found
+        return false;
+    }
+
+    /**
+     * 2554. Maximum Number of Integers to Choose From a Range I
+     * You are given an integer array banned and two integers n and maxSum. You are choosing some number of integers following the below rules:
+     * <p>
+     * The chosen integers have to be in the range [1, n].
+     * Each integer can be chosen at most once.
+     * The chosen integers should not be in the array banned.
+     * The sum of the chosen integers should not exceed maxSum.
+     * Return the maximum number of integers you can choose following the mentioned rules.
+     */
+    public int maxCount(int[] banned, int n, int maxSum) {
+        int currSum = 0;
+        int digits = 0;
+        Arrays.sort(banned);
+
+        int last = 0;
+        for (int ban : banned) {
+            if (ban > n) break;
+            if (currSum >= maxSum) break;
+
+
+            if (last + 1 <= ban - 1) {
+                int[] result = maxCountSearch(maxSum - currSum, last + 1, ban - 1);
+                currSum += result[0];
+                digits += result[1];
+            }
+            last = ban;
+        }
+        // Handle the remaining range [last + 1, n]
+        if (last + 1 <= n) {
+            int[] result = maxCountSearch(maxSum - currSum, last + 1, n);
+            currSum += result[0];
+            digits += result[1];
+        }
+        return digits;
+    }
+
+    public int[] maxCountSearch(int targetSum, int left, int right) {
+        int sum = 0, count = 0;
+        int originalLeft = left;
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            int rangeSum = rangeSum(originalLeft, mid);
+
+            if (rangeSum > targetSum) {
+                right = mid - 1;
+            } else {
+                sum = rangeSum;
+                count = mid - originalLeft + 1;
+                left = mid + 1;
+            }
+        }
+        return new int[]{sum, count};
+    }
+
+    private int rangeSum(int start, int end) {
+        return sumUpTo(end) - sumUpTo(start - 1);
+    }
+
+    private int sumUpTo(int x) {
+        return x * (x + 1) / 2;
+    }
+
+    /**
+     * 2981. Find Longest Special Substring That Occurs Thrice I
+     * You are given a string s that consists of lowercase English letters.
+     * <p>
+     * A string is called special if it is made up of only a single character. For example, the string "abc" is not special, whereas the strings "ddd", "zz", and "f" are special.
+     * <p>
+     * Return the length of the longest special substring of s which occurs at least thrice, or -1 if no special substring occurs at least thrice.
+     * <p>
+     * A substring is a contiguous non-empty sequence of characters within a string.
+     */
+    public int maximumLength(String s) {
+        HashMap<Character, LinkedHashMap<String, Integer>> map = new LinkedHashMap<>();
+        int left = 0;
+        for (int right = 1; right < s.length(); right++) {
+            char lc = s.charAt(left);
+            char rc = s.charAt(right);
+            if (lc != rc) {
+                String c = s.substring(left, right);
+                map.putIfAbsent(lc, new LinkedHashMap<>());
+                map.get(lc).put(c, map.get(lc).getOrDefault(c, 0) + 1);
+                left = right;
+            }
+        }
+
+        if (left < s.length()) {
+            char lc = s.charAt(left);
+            String c = s.substring(left);
+            map.putIfAbsent(lc, new LinkedHashMap<>());
+            map.get(lc).put(c, map.get(lc).getOrDefault(c, 0) + 1);
+        }
+
+        Integer maxSubstring = -1;
+        for (Character c : map.keySet()) {
+            int[][] sorted = new int[map.get(c).size()][2];
+            int index = 0;
+            for (String string : map.get(c).keySet()) {
+                sorted[index++] = new int[]{string.length(), map.get(c).get(string)};
+            }
+            Arrays.sort(sorted, (a, b) -> Integer.compare(b[0], a[0]));
+
+            int max = -1;
+            if (sorted[0][1] >= 3) {
+                max = sorted[0][0];
+            } else if (sorted.length > 1) {
+                max = sorted[1][0];
+            }
+            if (sorted[0][0] > 2) {
+                max = Math.max(max, sorted[0][0] - (3 - sorted[0][1]));
+            }
+            maxSubstring = Math.max(max, maxSubstring);
+        }
+
+        return maxSubstring;
+    }
+
+    public int maximumBeauty(int[] nums, int k) {
+        // If there's only one element, the maximum beauty is 1
+        if (nums.length == 1) return 1;
+
+        int maxBeauty = 0;
+        int maxValue = 0;
+
+        // Find the maximum value in the array
+        for (int num : nums) maxValue = Math.max(maxValue, num);
+
+        // Create an array to keep track of the count changes
+        int[] count = new int[maxValue + 1];
+
+        // Update the count array for each value's range [val - k, val + k]
+        for (int num : nums) {
+            count[Math.max(num - k, 0)]++; // Increment at the start of the range
+            count[Math.min(num + k + 1, maxValue)]--; // Decrement after the range
+        }
+
+        int currentSum = 0; // Tracks the running sum of counts
+        // Calculate the prefix sum and find the maximum value
+        for (int val : count) {
+            currentSum += val;
+            maxBeauty = Math.max(maxBeauty, currentSum);
+        }
+
+        return maxBeauty;
+    }
+
+    public long pickGifts(int[] gifts, int k) {
+        PriorityQueue<Integer> queue = new PriorityQueue<>((a, b) -> b - a);
+        for (int gift : gifts) {
+            queue.add(gift);
+        }
+        for (int i = 0; i < k; i++) {
+            int highest = queue.poll();
+            int remaining = (int) Math.floor(Math.sqrt(highest));
+            queue.add(remaining);
+        }
+        long sum = 0;
+        while (!queue.isEmpty())
+            sum += queue.poll();
+        return sum;
+    }
+
+    public int[] distinctNumbers(int[] nums, int k) {
+        HashMap<Integer, Integer> size = new HashMap<>();
+        int left = 0;
+
+        int[] ans = new int[nums.length - k + 1];
+        for (int right = 0; right < nums.length; right++) {
+            if (right - left + 1 > k) {
+                size.put(nums[left], size.get(nums[left]) - 1);
+                if (size.get(nums[left]) == 0)
+                    size.remove(nums[left]);
+                left++;
+            }
+
+            size.put(nums[right], size.getOrDefault(nums[right], 0) + 1);
+
+            if (right - left + 1 == k) {
+                ans[right - k + 1] = size.size();
+            }
+        }
+        return ans;
+    }
+
+    /**
+     * 1752. Check if Array Is Sorted and Rotated
+     * Given an array nums, return true if the array was originally sorted in non-decreasing order, then rotated some number of positions (including zero). Otherwise, return false.
+     * <p>
+     * There may be duplicates in the original array.
+     * <p>
+     * Note: An array A rotated by x positions results in an array B of the same length such that A[i] == B[(i+x) % A.length], where % is the modulo operation.
+     */
+    public boolean check(int[] nums) {
+        boolean smallFound = false;
+        for (int right = 1; right < nums.length; right++) {
+            if (nums[right - 1] > nums[right]) {
+                if (smallFound)
+                    return false;
+                smallFound = true;
+            }
+        }
+        return !smallFound || nums[0] >= nums[nums.length - 1];
+    }
+
+    /**
+     * 3105. Longest Strictly Increasing or Strictly Decreasing Subarray
+     * You are given an array of integers nums. Return the length of the longest
+     * subarray
+     * of nums which is either
+     * strictly increasing
+     * or
+     * strictly decreasing
+     * .
+     */
+    public int longestMonotonicSubarray(int[] nums) {
+        int max = 1;
+        int left = 0;
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i - 1] >= nums[i]) {
+                left = i;
+            }
+            max = Math.max(max, i - left + 1);
+        }
+
+        left = 0;
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i - 1] <= nums[i]) {
+                left = i;
+            }
+            max = Math.max(max, i - left + 1);
+        }
+        return max;
+    }
+
+    /**
+     * 1800. Maximum Ascending Subarray Sum
+     * Given an array of positive integers nums, return the maximum possible sum of an ascending subarray in nums.
+     * <p>
+     * A subarray is defined as a contiguous sequence of numbers in an array.
+     * <p>
+     * A subarray [numsl, numsl+1, ..., numsr-1, numsr] is ascending if for all i where l <= i < r, numsi  < numsi+1. Note that a subarray of size 1 is ascending.
+     */
+    public int maxAscendingSum(int[] nums) {
+        int sum = nums[0];
+        int max = nums[0];
+        for (int right = 1; right < nums.length; right++) {
+            if (nums[right - 1] > nums[right]) {
+                sum = 0;
+            }
+            sum += nums[right];
+            max = Math.max(sum, max);
+        }
+        return max;
+    }
+
+    /**
+     * 1726. Tuple with Same Product
+     * Given an array nums of distinct positive integers, return the number of tuples (a, b, c, d) such that a * b = c * d where a, b, c, and d are elements of nums, and a != b != c != d.
+     */
+    public int tupleSameProduct(int[] nums) {
+        int numsLength = nums.length;
+
+        Map<Integer, Integer> pairProductsFrequency = new HashMap<>();
+
+        int totalNumberOfTuples = 0;
+
+        for (int firstIndex = 0; firstIndex < numsLength; firstIndex++) {
+            for (int secondIndex = firstIndex + 1; secondIndex < numsLength; secondIndex++
+            ) {
+                pairProductsFrequency.put(nums[firstIndex] * nums[secondIndex], pairProductsFrequency.getOrDefault(
+                        nums[firstIndex] * nums[secondIndex], 0) + 1);
+            }
+        }
+
+        for (int productValue : pairProductsFrequency.keySet()) {
+            int productFrequency = pairProductsFrequency.get(productValue);
+            int pairsOfEqualProduct =
+                    ((productFrequency - 1) * productFrequency) / 2;
+
+            totalNumberOfTuples += 8 * pairsOfEqualProduct;
+        }
+
+        return totalNumberOfTuples;
+    }
+
+    /**
+     * 3160. Find the Number of Distinct Colors Among the Balls
+     * You are given an integer limit and a 2D array queries of size n x 2.
+     * <p>
+     * There are limit + 1 balls with distinct labels in the range [0, limit]. Initially, all balls are uncolored. For every query in queries that is of the form [x, y], you mark ball x with the color y. After each query, you need to find the number of distinct colors among the balls.
+     * <p>
+     * Return an array result of length n, where result[i] denotes the number of distinct colors after ith query.
+     * <p>
+     * Note that when answering a query, lack of a color will not be considered as a color.
+     */
+    public int[] queryResults(int limit, int[][] queries) {
+        HashMap<Integer, Set<Integer>> assigns = new HashMap<>();
+        int total = 0;
+        HashMap<Integer, Integer> arr = new HashMap<>();
+        int[] ans = new int[queries.length];
+        int index = 0;
+        for (int[] query : queries) {
+            int a = query[0];
+            int b = query[1];
+            if (!arr.containsKey(a)) {
+                arr.put(a, b);
+                assigns.putIfAbsent(b, new HashSet<>());
+                if (assigns.get(b).isEmpty()) total++;
+                assigns.get(b).add(a);
+            } else {
+                int oldB = arr.get(a);
+                if (oldB != b) { // Only update if it's a different value
+                    assigns.get(oldB).remove(a);
+                    if (assigns.get(oldB).isEmpty())
+                        total--;
+
+                    arr.put(a, b);
+                    assigns.putIfAbsent(b, new HashSet<>());
+                    assigns.get(b).add(a);
+                    if (assigns.get(b).size() == 1) {
+                        total++;
+                    }
+                }
+            }
+            ans[index++] = total;
+        }
+        return ans;
+    }
+
+    /**
+     * 2342. Max Sum of a Pair With Equal Sum of Digits
+     * You are given a 0-indexed array nums consisting of positive integers. You can choose two indices i and j, such that i != j, and the sum of digits of the number nums[i] is equal to that of nums[j].
+     * <p>
+     * Return the maximum value of nums[i] + nums[j] that you can obtain over all possible indices i and j that satisfy the conditions.
+     */
+    public int maximumSum(int[] nums) {
+        Arrays.sort(nums);
+        int[] digitMapping = new int[82];
+        int max = -1;
+        for (int num : nums) {
+            int temp = num;
+            int digitSum = 0;
+            while (temp != 0) {
+                int last = temp % 10;
+                temp = temp / 10;
+                digitSum += last;
+            }
+            if (digitMapping[digitSum] != 0)
+                max = Math.max(digitMapping[digitSum] + num, max);
+            digitMapping[digitSum] = num;
+        }
+        return max;
+
+    }
+
+    public int punishmentNumber(int n) {
+        int punishmentNum = 0;
+
+        // Iterate through numbers in range [1, n]
+        for (int currentNum = 1; currentNum <= n; currentNum++) {
+            int squareNum = currentNum * currentNum;
+
+            // Check if valid partition can be found and add squared number if so
+            if (canPartition(squareNum, currentNum)) {
+                punishmentNum += squareNum;
+            }
+        }
+        return punishmentNum;
+    }
+
+    public boolean canPartition(int num, int target) {
+        // Invalid partition found
+        if (target < 0 || num < target) {
+            return false;
+        }
+
+        // Valid partition found
+        if (num == target) {
+            return true;
+        }
+
+        // Recursively check all partitions for a valid partition
+        return (
+                canPartition(num / 10, target - (num % 10)) ||
+                        canPartition(num / 100, target - (num % 100)) ||
+                        canPartition(num / 1000, target - (num % 1000))
+        );
+    }
+
+    public String findDifferentBinaryString(String[] nums) {
+        Set<Integer> integers = new HashSet();
+        for (String num : nums) {
+            integers.add(Integer.parseInt(num, 2));
+        }
+
+        int n = nums.length;
+        for (int num = 0; num <= n; num++) {
+            if (!integers.contains(num)) {
+                String ans = Integer.toBinaryString(num);
+                while (ans.length() < n) {
+                    ans = "0" + ans;
+                }
+
+                return ans;
+            }
+        }
+
+        return "";
+    }
+
+    public int[] pivotArray(int[] nums, int pivot) {
+        int[] ans = new int[nums.length];
+        int lessI = 0;
+        int greaterI = nums.length - 1;
+        for (int i = 0, j = nums.length - 1; i < nums.length; i++, j--) {
+            if (nums[i] < pivot) {
+                ans[lessI] = nums[i];
+                lessI++;
+            }
+            if (nums[j] > pivot) {
+                ans[greaterI] = nums[j];
+                greaterI--;
+            }
+
+        }
+        while (lessI <= greaterI) {
+            ans[lessI] = pivot;
+            lessI++;
+        }
+        return ans;
     }
 
 

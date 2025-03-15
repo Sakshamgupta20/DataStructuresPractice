@@ -143,4 +143,61 @@ public class StackProblems {
         }
         return stack.pop();
     }
+
+    /**
+     * 3174. Clear Digits
+     * You are given a string s.
+     * <p>
+     * Your task is to remove all digits by doing this operation repeatedly:
+     * <p>
+     * Delete the first digit and the closest non-digit character to its left.
+     * Return the resulting string after removing all digits.
+     */
+    public String clearDigits(String s) {
+        Stack<Character> stack = new Stack<>();
+        for (char c : s.toCharArray()) {
+            if (Character.isDigit(c)) {
+                if (!stack.isEmpty() && !Character.isDigit(stack.peek()))
+                    stack.pop();
+                else
+                    stack.push(c);
+            } else
+                stack.push(c);
+        }
+        StringBuilder res = new StringBuilder();
+        while (!stack.isEmpty())
+            res.append(stack.pop());
+        return res.reverse().toString();
+    }
+
+    /**
+     * 2375. Construct Smallest Number From DI String
+     * You are given a 0-indexed string pattern of length n consisting of the characters 'I' meaning increasing and 'D' meaning decreasing.
+     * <p>
+     * A 0-indexed string num of length n + 1 is created using the following conditions:
+     * <p>
+     * num consists of the digits '1' to '9', where each digit is used at most once.
+     * If pattern[i] == 'I', then num[i] < num[i + 1].
+     * If pattern[i] == 'D', then num[i] > num[i + 1].
+     * Return the lexicographically smallest possible string num that meets the conditions.
+     */
+    public String smallestNumber(String pattern) {
+        StringBuilder result = new StringBuilder();
+        Stack<Integer> numStack = new Stack<>();
+
+        // Iterate through the pattern
+        for (int index = 0; index <= pattern.length(); index++) {
+            // Push the next number onto the stack
+            numStack.push(index + 1);
+
+            // If 'I' is encountered or we reach the end, pop all stack elements
+            if (index == pattern.length() || pattern.charAt(index) == 'I') {
+                while (!numStack.isEmpty()) {
+                    result.append(numStack.pop());
+                }
+            }
+        }
+
+        return result.toString();
+    }
 }

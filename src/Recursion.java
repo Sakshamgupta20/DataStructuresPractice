@@ -58,4 +58,73 @@ public class Recursion {
 
         return fibonacci(num - 1) + fibonacci(num - 2);
     }
+
+    public int[] constructDistancedSequence(int n) {
+        // Initialize the result sequence with size 2*n - 1 filled with 0s
+        int[] resultSequence = new int[n * 2 - 1];
+
+        // Keep track of which numbers are already placed in the sequence
+        boolean[] isNumberUsed = new boolean[n + 1];
+
+        // Start recursive backtracking to construct the sequence
+        findLexicographicallyLargestSequence(
+                0,
+                resultSequence,
+                isNumberUsed,
+                n
+        );
+
+        return resultSequence;
+
+    }
+
+    private boolean findLexicographicallyLargestSequence(int currentIndex, int[] resultSequence, boolean[] isNumberUsed, int n) {
+
+        if (currentIndex == resultSequence.length) {
+            return true;
+        }
+
+        if (resultSequence[currentIndex] != 0) {
+            return findLexicographicallyLargestSequence(
+                    currentIndex + 1,
+                    resultSequence,
+                    isNumberUsed,
+                    n
+            );
+        }
+
+        for (int numberToPlace = n; numberToPlace >= 1; numberToPlace--) {
+            if (isNumberUsed[numberToPlace]) continue;
+            isNumberUsed[numberToPlace] = true;
+            resultSequence[currentIndex] = numberToPlace;
+            if (numberToPlace == 1) {
+                if (findLexicographicallyLargestSequence(currentIndex + 1, resultSequence, isNumberUsed, n)
+                ) {
+                    return true;
+                }
+            }else if (
+                    currentIndex + numberToPlace < resultSequence.length &&
+                            resultSequence[currentIndex + numberToPlace] == 0
+            ) {
+                resultSequence[currentIndex + numberToPlace] = numberToPlace;
+
+                if (
+                        findLexicographicallyLargestSequence(
+                                currentIndex + 1,
+                                resultSequence,
+                                isNumberUsed,
+                                n
+                        )
+                ) {
+                    return true;
+                }
+
+                // Undo the placement for backtracking
+                resultSequence[currentIndex + numberToPlace] = 0;
+                isNumberUsed[numberToPlace] = false;
+            }
+        }
+
+        return false;
+    }
 }

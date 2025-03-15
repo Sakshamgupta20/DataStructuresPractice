@@ -2,9 +2,9 @@ package Graphs;
 
 
 public class Step {
-    int row;
-    int column;
-    int steps;
+    public int row;
+    public int column;
+    public int steps;
     int remains;
 
     public Step(int row, int column, int steps) {
