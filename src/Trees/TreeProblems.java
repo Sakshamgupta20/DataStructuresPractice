@@ -1,6 +1,8 @@
 package Trees;
 
 
+import Graphs.Pair;
+
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -1118,6 +1120,24 @@ public class TreeProblems {
         // If node 0 isn't reached, remove current node from path
         bobPath.remove(sourceNode);
         return false;
+    }
+
+    public TreeNode lcaDeepestLeaves(TreeNode root) {
+        return lcaDeepestLeavesDfs(root).node;
+    }
+
+    private TreeNodePair lcaDeepestLeavesDfs(TreeNode curr) {
+        if(curr == null)
+            return new TreeNodePair(null,0);
+        TreeNodePair left = lcaDeepestLeavesDfs(curr.left);
+        TreeNodePair right = lcaDeepestLeavesDfs(curr.right);
+
+        if(left.level > right.level) {
+            return new TreeNodePair(left.node, left.level + 1);
+        }
+        else if (left.level < right.level)
+            return new TreeNodePair(right.node,right.level + 1);
+        return new TreeNodePair(curr,left.level + 1);
     }
 
 

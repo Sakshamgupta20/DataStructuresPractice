@@ -951,5 +951,42 @@ public class ArrayProblems {
         return ans;
     }
 
+    public int minimumIndex(List<Integer> nums) {
+        int x = nums.get(0);
+        int count = 0;
+        int xCount = 0;
+        int n = nums.size();
+
+        for (Integer num : nums) {
+            if(num == x)
+                count++;
+            else
+                count--;
+            if(count == 0) {
+                count = 1;
+                x = num;
+            }
+        }
+
+        for (int num : nums) {
+            if (num == x) {
+                xCount++;
+            }
+        }
+
+        count = 0;
+        for (int index = 0; index < n; index++) {
+            if (nums.get(index) == x) {
+                count++;
+            }
+            int remainingCount = xCount - count;
+            if (count * 2 > index + 1 && remainingCount * 2 > n - index - 1) {
+                return index;
+            }
+        }
+
+        return -1;
+    }
+
 
 }
